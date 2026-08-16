@@ -237,17 +237,19 @@ $A(x)B(x)-C(x)$ 在 $x\in H$ 时总是为 0 意味着什么呢？
 
 此外，你听说有人为了攻击椭圆曲线，发明了一个有趣的配对方法。
 
->**定义（双线性配对）**
+>**定义（第三类双线性配对）**
 >
->设 $\mathbb G_1,\mathbb G_2,\mathbb G_T$ 是阶数质数为 $p$ 的群，其中 $p$ 约为 $2^{2\kappa}$ 量级，且 $G_1,G_2$ 分别为其生成元，任取整数 $\alpha$，设 $\alpha G$ 为 $\alpha$ 个 $G$ 进行椭圆曲线上的点加的结果，$\mathbb F$ 是模 $p$ 有限域。
+>设 $\mathbb G_1,\mathbb G_2,\mathbb G_T$ 是阶数为质数 $p$ 的群，其中 $p$ 约为 $2^{2\kappa}$ 量级，且 $G_1,G_2$ 分别为其生成元，任取整数 $\alpha$，设 $\alpha G$ 为 $\alpha$ 个 $G$ 进行椭圆曲线上的点加的结果，$\mathbb F$ 是模 $p$ 有限域。
 >
->则映射 $e:\mathbb G_1\times \mathbb G_2\to \mathbb G_T$ 被称为双线性对，当且仅当满足三个条件：
+>则映射 $e:\mathbb G_1\times \mathbb G_2\to \mathbb G_T$ 被称为**第三类双线性配对**，当且仅当满足四个条件：
 >
 >第一是双线性性，即对任意 $\alpha,\beta\in \mathbb F$，$P\in \mathbb G_1,Q\in \mathbb G_2$，均有 $e(\alpha P,\beta Q)= e(P,Q)^{\alpha\beta}$。
 >
 >第二是非退化性，即 $e(G_1,G_2)\ne 1_{\mathbb G_T}$，其中 $1_{\mathbb G_T}$ 是目标群 $\mathbb G_T$ 的单位元。
 >
 >第三是可计算性，映射 $e$ 可以被高效计算。
+>
+>第四是非对称性，即 $\mathbb G_1\ne\mathbb G_2$ 且不存在可在概率多项式时间计算的 $\varphi:\mathbb G_1\to \mathbb G_2$ 或 $\psi:\mathbb G_2\to \mathbb G_1$使得 $\varphi$ 或 $\psi$ 是非平凡的群同态映射。
 
 你看着这些信息，灵光一闪。
 ## 初始思考
