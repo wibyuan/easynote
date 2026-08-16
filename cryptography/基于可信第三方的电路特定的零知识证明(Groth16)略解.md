@@ -1,0 +1,592 @@
+人们会提出很多奇怪的需求，比如今天，Alice 和 Bob 找到你，希望你能解决他们的争执。
+
+Alice 和 Bob 向你公开了一个函数 $\mathcal C:\mathcal K\times \mathcal L\to \{0,1\}$。
+
+Alice 和 Bob 都知道有一个元素 $\boldsymbol x\in \mathcal K$，但是 Alice 宣称她知道的更多。
+
+具体而言，Alice 希望 Bob 相信她拥有一个元素 $\boldsymbol w\in \mathcal L$，使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$。
+
+正如大部分故事的剧情那样，Bob 不相信并要求 Alice 出示 $\boldsymbol w$，但是 Alice 不希望让 Bob 知道 $\boldsymbol w$，真是令人遗憾呀。
+
+因此他们找到了你。
+# 初步建模
+
+你表示很头疼，于是你打算把 Alice 和 Bob 的要求初步建模一下。
+
+## 建立协议
+
+你感觉很疑惑，首先 Alice 要给 Bob 发消息，其次，这两个看似矛盾的条件得同时满足：
+
+- Alice 发出的消息需要让 Bob 相信她拥有一个元素 $\boldsymbol w\in \mathcal L$，使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$，即 Bob 相信 Alice 仅仅有可忽略的概率伪造成功。
+- Alice 发出的消息需要让 Bob 在寻找 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$ 问题的一个解 $\boldsymbol w\in \mathcal L$ 上，仅仅获得可忽略的增益。
+
+这世界上哪有这么好的事情，等等？
+
+你回想起了你是怎么获得品酒师资格证的，方法是向对面进行多轮交互：
+
+- 对面把各种产地的酒摆在你面前，让你一个个喝掉。
+- 等到感觉差不多了，你一个个把对应的产地写出来。
+- 对方校验，如果你的产地全写对了，对方就认为你有品酒的能力，否则不认为你有品酒的能力。
+
+其中，让对方获得你如何品酒的信息在物理上是不现实的，这是一个高度生理学的能力，但即使被迫零知识，对方也相信了你，因为……交互！
+
+你明白了，看起来不论最后协议长什么样子，一开始想想交互式协议总不会有大问题。
+## 严格定义可忽略
+
+你打算设定一个安全参数 $\kappa$，这个安全参数的意义就是同时定义什么样的函数是可忽略的。
+
+>**定义（可忽略函数）**
+>
+>一个在定义域 $\mathbb N^+$ 上恒为正的函数 $f(x)$ 是**可忽略**的，当且仅当对任意 $\mathbb R[x]$ 上的多项式 $p(x)$：
+>$$\lim_{x\to+\infty}p(x)f(x)=0$$
+>全体可忽略函数组成的集合记作 $\text{negl}(x)$。
+
+你告诉 Alice 和 Bob，见过 NPC 问题嘛，计算机科学家们都认为 NPC 问题是很难的问题，就是因为现在还找不到概率多项式时间算法，因此，只要我证明你们运用概率多项式时间算法，伪造或者破解的概率在 $\text{negl}(\kappa)$ 这个量级，那你们只需要调大你们的 $\kappa$ ，就可以轻易得到极难伪造或破解的正规流程了！
+
+总之你似乎蒙过了 Alice 和 Bob，你松了一口气，不要求信息论安全是很好的，要是和他们解释 $2^{-128}$ 的概率为什么在现实中几乎不可能发生，可能又要费一番口舌。
+## 信任请求
+
+你打算先用单轮交互搞定，这并不是因为你认为单轮交互已经足够优秀，只是你的脑子需要一个简单的锚点。
+
+你先问了一下，Alice 和 Bob，你们是否愿意信任和你们利益无关的第三方，这个第三方不需要知道 Alice 的秘密，但是你们要信任它会遵守流程而不会偏向某一方。
+
+Alice 和 Bob 同意了，你松了一口气，这样大概率会让你的设计变得容易一点吧。
+## 流程设定
+
+你的流程需要三个组件，$\text{Setup},\text{Prove},\text{Verify}$。
+
+当流程开始时，一个可信的第三方运行 $\text{Setup}(1^{\kappa},\mathcal C)$，具体而言，可信第三方接受 $\kappa$ 和 $\mathcal C$，并生成一个公共的串 $\text{CRS}$，这个串对 Alice 和 Bob 共享，但是可信第三方不能透露更多的信息，在这一流程结束后，可信第三方不应该参与剩余流程。
+
+然后，Alice 自己运行 $\text{Prove}(\text{CRS},\boldsymbol x,\boldsymbol w)$，生成证明 $\pi$ 发给 Bob。
+
+最后，Bob 自己运行 $\text{Verify}(\text{CRS},\boldsymbol x,\pi)$ 如果结果是 1，则相信 Alice，否则不信。
+
+哇，看起来很好耶，但是交互又到哪里去呢，你不太在意，在你看来，也许打个补丁可以解决，但是现在你懒得想交互的事情了。
+## 安全性约束
+
+然后为了满足 Alice 和 Bob 的要求，你打算形式化他们的需求，主要是三个要素。
+
+完备性，即如果 Alice 确实知道一个满足要求的 $\boldsymbol w$，那么按照流程走，生成的 $\pi$ 不被 $\text{Verify}(\text{CRS},\boldsymbol x,\pi)$ 的接受的概率是可忽略的，即按流程走几乎必然被接受。
+
+计算可靠性，即如果 Alice 确实不知道一个满足要求的 $\boldsymbol w$，那么运行任意概率多项式算法，生成的 $\pi^*$ 不被 $\text{Verify}(\text{CRS},\boldsymbol x,\pi^*)$ 的接受的概率是可忽略的，即伪造证明几乎必然不被接受。
+
+零知识性，欸，怎么让 Alice 确信 Bob 不能获得任何知识呢？
+
+哦，有了！再加一个组件 $\text{Sim}(\tau,\boldsymbol x)$，既然假设可信第三方拥有一些不能分享给 Alice 或 Bob 的重要信息，钦定 $\tau$ 是从第三方那里薅过来的不能分享给 Alice 和 Bob 的信息（虽然还不知道那是什么），这个模拟器不知道 $\boldsymbol w$。
+
+$\text{Sim}(\tau,\boldsymbol x)$ 生成 $(\text{CRS}^*,\pi^*)$，也就是假公共参数和伪证，那么，如果凭借这种不公平的信息优势可以生成无法用概率多项式时间算法以不可忽略的概率将 $(\text{CRS}^*,\pi^*)$ 真实证明过程的 $(\text{CRS},\pi)$ 区分的假公共参数和伪证，那我不就证明了 Bob 不可能获得关于 $\boldsymbol w$ 的知识嘛，毕竟随时有一个伪证可以造出来！
+
+此外， Bob 另外提出了一个要求，他表示，自己那方没有 Alice 那边的算力，因此希望自己这边的算力比较轻量，不过你当前连方案都没设计出来，你勉强表示重视，但暂时搁置了。
+
+好的，那么接下来如何编写可以利用这三个要素的协议呢？
+# 协议构造
+
+你看向了 Alice 和 Bob 给出的函数 $\mathcal C$，你觉得这玩意简直太抽象了，可不可以用更好的方式建模呢。
+
+## 组合完备初探
+
+你注意到了模质数 $p$ 的有限域，不妨假设 $p$ 在 $2^{2\kappa}$ 这个量级，如果记模 $p$ 有限域为 $\mathbb F$。
+
+那么你发现域上的加法和乘法本质上是似乎组合完备的。
+
+因为，如果 $\kappa>1$，且 $x,y\in\{0,1\}$。
+
+则 $\neg x=1-x$，$x\land y=xy$，且 $x\lor y=x+y-xy$。
+
+欸，竟然与或非都表示出来了，那就有说法，可以用域上的运算对这个 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$ 进行建模了。
+
+首先对 $\boldsymbol x$ 和 $\boldsymbol w$ 进行参数化，不妨设 $\boldsymbol x=\begin{pmatrix}x_1&x_2&\cdots&x_k\end{pmatrix}^T\in \mathbb F^k$ 且 $\boldsymbol w=\begin{pmatrix}w_1&w_2&\cdots&w_l\end{pmatrix}^T\in \mathbb F^l$，那么 $\mathcal C$ 就可以理解为 $\mathcal C:\mathbb F^k\times \mathbb F^{l}\to \{0,1\}$ 的函数了。
+
+## R1CS
+
+很显然，为了处理各种奇奇怪怪的需求，你需要加入中间变量 $\boldsymbol v=\begin{pmatrix}v_1&v_2&\cdots&v_{m-l-k-1}\end{pmatrix}^T\in \mathbb F^{m-l-k-1}$。
+
+那么，不妨设 $\boldsymbol z=\begin{pmatrix}1&\boldsymbol x^T&\boldsymbol w^T&\boldsymbol v^T\end{pmatrix}^T\in \mathbb F^{m}$ 
+
+然后我们定义 $A,B,C\in \mathbb F^{n\times m}$。
+
+那么我们就可以把一般程序的约束表示为：
+$$(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$$
+其中 $\circ$ 指的是对应位置相乘。
+
+看似复杂，其实拆开来看就是 $n$ 条约束，每条都是线性组合乘线性组合等于线性组合的形式，也就是 R1CS 转化。
+
+>**定义（R1CS 转化）**
+>
+>对于约束 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$，其中 $\mathcal C:\mathbb F^k\times \mathbb F^{l}\to \{0,1\}$， $\boldsymbol x=\begin{pmatrix}x_1&x_2&\cdots&x_k\end{pmatrix}^T\in \mathbb F^k$ 和 $\boldsymbol w=\begin{pmatrix}w_1&w_2&\cdots&w_l\end{pmatrix}^T\in \mathbb F^l$ 。
+>
+>其 **R1CS 转化**形如：
+>$$(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$$
+>
+>其中 $\boldsymbol z=\begin{pmatrix}1&\boldsymbol x^T&\boldsymbol w^T&\boldsymbol v^T\end{pmatrix}^T\in \mathbb F^{m}$，$A,B,C\in \mathbb F^{n\times m}$。
+> 
+> 且 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$ 当且仅当存在一组 $\boldsymbol v=\begin{pmatrix}v_1&v_2&\cdots&v_{m-l-k-1}\end{pmatrix}^T\in \mathbb F^{m-l-k-1}$ 使得 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$。
+
+不难看出，$A,B,C$ 的建模意图是，利用域的组合完备性，使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$ 当且仅当，在 $\boldsymbol x$ 和 $\boldsymbol w$
+ 已知的前提下，$(Az)\circ (Bz)=Cz$ 有解，而且最好这个解比较容易求。
+
+解比较容易求这个还是容易实现的，建立约束的时候简单一点就行了。
+
+你打算再次确认组合完备性是否保持。
+## 组合完备的校验
+
+域上的加法就是线性组合，不显式增加约束，实在想写可以写 $(x+y)\cdot 1=z$。
+
+布尔逻辑门，可以采用 $b\cdot (1-b)=0$ 形式的约束，使得 $b\in\{0,1\}$ 这个条件被强制保持。
+
+然后就有与或非，即 $\neg x=1-x$，$x\land y=xy$，且 $x\lor y=x+y-xy$。
+
+考虑零值测试，$\begin{cases}x\cdot y=1-z\\x\cdot z=0\end{cases}$，无其它限制，此时若 $x=0$ 则 $z=1$，若 $x\ne 0$ 则 $z=0,y=x^{-1}$。
+
+零值测试可以等价推导出等值检查。
+
+考虑条件选择器，$\begin{cases}c\cdot (c-1)=0\\c\cdot(a-b)=(z-b)\end{cases}$，不难看出，当 $c=0$ 时，$z=b$，当 $c=1$ 时，$z=a$。
+
+位拆分，$\begin{cases}{b_i}\cdot(b_i-1)=0&0\le i\le 2\kappa\\x\cdot 1=\displaystyle\sum_{i=0}^{2\kappa}b_i 2^i\end{cases}$
+
+而随机存取可以用条件选择器来实现内存读写。
+
+因此，你看出来了，这个简单的 $(Az)\circ (Bz)=Cz$ 确实可以实现任意组合逻辑。
+## 多项式插值
+
+你听说过有一个拉格朗日插值的方法，具体而言，在有限域上选定 $n$ 个不同的元素集合：
+
+$$H=\{\omega_0,\omega_1,\cdots,\omega_{n-1}\}\subseteq \mathbb F$$
+听说人们会让 $H$ 恰好和域的乘法构成一个循环群且 $n$ 是 2 的幂来加速整个流程，但你对此不是很了解，先不管了。
+
+为了方便起见，对 $\boldsymbol z,A,B$ 也采用 0 开头的索引，例如：
+$$\boldsymbol z=\begin{pmatrix}z_0&z_1&\cdots&z_{m-1}\end{pmatrix}^T\in \mathbb F^{m}$$
+
+顺便定义一个消失多项式 $Z_H(x)\in \mathbb F[x]$：
+
+$$Z_H(x)=\prod_{i=0}^{n-1}(x-\omega_i)$$
+它可以快速对 $\mathbb F^{n\times m}$ 上的矩阵 $A$ 生成 $m$ 个不超过 $n-1$ 次的多项式，设 $a_{i,j}$ 表示 $A$ 第 $i$ 行第 $j$ 列的值，其中第 $j$ 个多项式 $A_j$ 满足，对任意 $i\in\{0,1,\cdots,n-1\}$ 都有：
+$$A_j(\omega_i)=a_{i,j}$$
+然后设总多项式 $A(x)$ 满足：
+$$A(x)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(x)$$
+然后，对 $B,C$ 以同样的方法生成它们的总多项式 $B(x),C(x)$。
+
+由此我们就有多项式转化，即 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 等价于 $A(x)B(x)-C(x)$ 在 $x\in H$ 时总是为 0。
+
+$A(x)B(x)-C(x)$ 在 $x\in H$ 时总是为 0 意味着什么呢？
+
+意味着存在多项式 $Q(x)$，使得 $A(x)B(x)-C(x)-Q(x)Z_H(x)\equiv 0$，恒等于 0。
+
+但是，$A(x),B(x),C(x),Q(x)$ 在这里不再是公开信息了，它是只有 Alice 可以计算的信息，因此进行拆分。
+
+不妨设 $A_{\text{pub}}(x)=\displaystyle\sum_{i=0}^k z_iA_i(x)=A_0(x)+\displaystyle\sum_{i=1}^k x_iA_i(x)$，和 $A_{\text{priv}}(x)=A(x)-A_{\text{pub}}(x)$。
+同理有 $B_{\text{pub}}(x),C_{\text{pub}}(x),B_{\text{priv}}(x),C_{\text{priv}}(x)$。
+
+>**定理（零知识证明的多项式转化）**
+>
+>对于约束 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$，其中 $\mathcal C:\mathbb F^k\times \mathbb F^{l}\to \{0,1\}$， $\boldsymbol x=\begin{pmatrix}x_1&x_2&\cdots&x_k\end{pmatrix}^T\in \mathbb F^k$ 和 $\boldsymbol w=\begin{pmatrix}w_1&w_2&\cdots&w_l\end{pmatrix}^T\in \mathbb F^l$ 。
+>
+>其中，$\mathbb F[x]$ 上的多项式 $Z_H(x),A_{\text{pub}}(x),B_{\text{pub}}(x),C_{\text{pub}}(x)$ 是 Alice 和 Bob 共同知晓的公开信息。
+>
+>如果 Alice 拥有 $\mathbb F[x]$ 上的多项式 $A_{\text{priv}}(x),B_{\text{priv}}(x),C_{\text{priv}}(x),Q(x)$，并使得：
+>$$(A_{\text{pub}}(x)+A_{\text{priv}}(x))\cdot (B_{\text{pub}}(x)+B_{\text{priv}}(x))-(C_{\text{pub}}(x)+C_{\text{priv}}(x))-Q(x)Z_H(x)\equiv 0$$
+>其中 $A_{\text{priv}},B_{\text{priv}},C_{\text{priv}}$  Alice 不能随意构造，而必须以同一个线性组合系数 $\begin{pmatrix}z_{k+1}&z_{k+2}&\cdots&z_{m-1}\end{pmatrix}^T\in \mathbb F^{m-k-1}$ 和公共信息如下构造：
+>$$A_{\text{priv}}(x)=\displaystyle\sum_{i=k+1}^{m-1} z_iA_i(x)$$
+>$$B_{\text{priv}}(x)=\displaystyle\sum_{i=k+1}^{m-1} z_iB_i(x)$$
+>$$C_{\text{priv}}(x)=\displaystyle\sum_{i=k+1}^{m-1} z_iC_i(x)$$
+>
+>则 Alice 可以利用她已知的信息获取 $\boldsymbol w$ 满足 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$。
+
+**证明：**
+
+取线性组合系数，等价于得到了 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 的解。$\blacksquare$
+
+你感觉差不多了，但是还差一点点东西，你不太确定是什么。
+
+## 单变量下的  Schwartz-Zippel 引理
+
+你注意到一个事情，一个 $d$ 次多项式，它在模 $p$ 有限域中，至多只有 $d$ 个根。
+
+换句话说：
+
+>**定理（单变量下的 Schwartz-Zippel 引理）**
+>
+>如果 $\mathbb F$ 是模 $p$ 有限域， $f(x)\in \mathbb F[x]$ 是 $d$ 次非零多项式。
+>
+>在 $\mathbb F$ 中随机取一个元素 $\alpha$，$f(\alpha)=0$ 的概率不大于 $\dfrac d{p}$  。
+
+**证明：**
+
+由于 $f(x)$ 在 $\mathbb F$ 中至多有 $d$ 个根，在 $\mathbb F$ 中随机取一个元素 $\alpha$，恰好取中一个根的概率不大于 $\dfrac d{p}$  。$\blacksquare$
+
+反过来，对于一个多项式 $f(x)$，如果它不是 0 多项式，你只需要知道 $f(\alpha)$ 的值，其中 $\alpha$ 是随机的，你错误地判断它是 0 多项式的概率是 $\dfrac dp$，而 $p$ 是 $2^{2\kappa}$ 量级，因此，错误判断的概率是可以忽略的。
+
+你恍然大悟，你大体上明白了你需要一个机制，让 Alice 给 Bob 提供多项式的求值，并让 Bob 相信，这些值是由满足对应约束多项式求值得到的。
+
+但怎么才能做到这点呢？
+# 多项式承诺
+
+你忽然回忆起了一些有趣的数学知识。
+
+## 数学知识
+
+你听说椭圆曲线的加法群 $\mathbb G$ 是一个困难的群，它上面未解的难题简直是批发的，其中一个是椭圆曲线的离散对数问题，具体而言：
+
+>**困难问题（椭圆曲线上的离散对数问题）**
+>
+>设 $\mathbb G$ 是阶数为质数 $p$ 的循环群，其中 $p$ 约为 $2^{2\kappa}$ 量级，且 $G$ 为其生成元，从模 $p$ 有限域中均匀随机选取整数 $\alpha$，设 $\alpha G$ 为 $\alpha$ 个 $G$ 进行椭圆曲线上的点加的结果。
+>
+>给定群元素 $y=\alpha G$，对于任意敌手 $\mathcal A$，在已知椭圆曲线群的表达式，$G$ 和 $y$ 的前提下，运行任意概率多项式时间算法，计算出 $\alpha$ 的概率是可忽略的。
+
+当然其实你并不知道是不是真的没有，但数学家们说没找到，你姑且假设没有。
+
+此外，你听说有人为了攻击椭圆曲线，发明了一个有趣的配对方法。
+
+>**定义（双线性配对）**
+>
+>设 $\mathbb G_1,\mathbb G_2,\mathbb G_T$ 是阶数质数为 $p$ 的群，其中 $p$ 约为 $2^{2\kappa}$ 量级，且 $G_1,G_2$ 分别为其生成元，任取整数 $\alpha$，设 $\alpha G$ 为 $\alpha$ 个 $G$ 进行椭圆曲线上的点加的结果，$\mathbb F$ 是模 $p$ 有限域。
+>
+>则映射 $e:\mathbb G_1\times \mathbb G_2\to \mathbb G_T$ 被称为双线性对，当且仅当满足三个条件：
+>
+>第一是双线性性，即对任意 $\alpha,\beta\in \mathbb F$，$P\in \mathbb G_1,Q\in \mathbb G_2$，均有 $e(\alpha P,\beta Q)= e(P,Q)^{\alpha\beta}$。
+>
+>第二是非退化性，即 $e(G_1,G_2)\ne 1_{\mathbb G_T}$，其中 $1_{\mathbb G_T}$ 是目标群 $\mathbb G_T$ 的单位元。
+>
+>第三是可计算性，映射 $e$ 可以被高效计算。
+
+你看着这些信息，灵光一闪。
+## 初始思考
+
+你盯着 $A(x)B(x)-C(x)-Q(x)Z_H(x)\equiv 0$ 发呆。
+
+你想象着你代入了一个随机值 $\tau$ 使得 $A(\tau)B(\tau)-C(\tau)-Q(\tau)Z_H(\tau)= 0$，但不能直接这样！
+
+因为 Alice 可能会使得 $A(x),B(x),C(x)$ 不是真正由公开信息线性组合而来的。
+
+这怎么破解呢？
+
+你灵光一闪，引入了两个随机偏移量 $\alpha,\beta\in\mathbb F\setminus \{0\}$。
+
+你注意到 $(A(\tau)+\alpha)(B(\tau)+\beta)=A(\tau)B(\tau)+\beta A(\tau)+\alpha B(\tau)+\alpha\beta$。
+
+那么 $A(\tau)B(\tau)-C(\tau)-Q(\tau)Z_H(\tau)= 0$ 可以简单地变形一下：
+$$(A(\tau)+\alpha)(B(\tau)+\beta)=\alpha\beta+(\beta A(\tau)+\alpha B(\tau)+C(\tau))+Q(\tau)Z_H(\tau)$$
+这样子，$A(x),B(x),C(x)$ 就被搅在一起了！如果 Alice 用 $A_i,B_i,C_i$ 的不同或无效的线性组合，看起来，有了 $\alpha,\beta$，余项就会搅在一起干扰校验！
+
+你的眉头舒缓了，但你还是觉得差一点。
+## 分离公私
+
+你还是找到了你差在哪里。
+
+Alice 虽然被迫使用同一组线性组合，但她仍然有可能伪造 $\boldsymbol x$，或者将 $\boldsymbol z$ 的其它部分和 $\boldsymbol x,Q(x)$ 搅合在一起，必须堵死这个漏洞！
+
+你眉头一皱，展开了式子：
+
+$$(A(\tau)+\alpha)(B(\tau)+\beta)=\alpha\beta+\sum_{i=0}^{m-1}z_i(\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau))+Q(\tau)Z_H(\tau)$$
+
+你灵光一闪，引入了两个随机偏移量 $\gamma,\delta\in F\setminus\{0\}$  使得 $\gamma\ne \delta$，并令：
+$$u_{\text{pub}}=\sum_{i=0}^kz_i\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}$$
+$$u_{\text{priv}}=\dfrac{Q(\tau)Z_H(\tau)}{\delta}+\sum_{i=k+1}^{m-1}z_i\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\delta}$$
+然后就有：
+$$(A(\tau)+\alpha)(B(\tau)+\beta)=\alpha\beta+\gamma u_{\text{pub}}+\delta u_{\text{priv}}$$
+其中 $u_{\text{pub}}$ 控制的信息直接由 Bob 算好，不给 Alice 机会。
+
+现在 Alice 理论上难以伪造了，但你还是莫名有些不安。
+
+再想想。
+## 加入盲化
+
+你明白了，Alice 虽然理论上难以伪造了，但仍然有一个问题。
+
+Alice 和 Bob 可能在同一个电路上进行多次证明。
+
+每次，$\alpha,\beta,\gamma,\delta,\tau$ 都是固定的。
+
+那么此时，$A(\tau)+\alpha$ 和 $B(\tau)+\beta$ 的统计规律就可能泄露隐私，有没有比较轻量级的办法，可以让 Alice 在每次生成的时候都加入一点盲化呢？
+
+欸，不妨让 Alice 每次生成的时候都选取 $r,s\in \mathbb F$。
+
+不妨设 $A'=A(\tau)+\alpha+r\delta$ 且 $B'=B(\tau)+\beta+s\delta$。
+
+就注意到：
+$$A'B'=(A(\tau)+\alpha)(B(\tau)+\beta)+s\delta(A(\tau)+\alpha)+r\delta(B(\tau)+\beta)+rs\delta^2$$
+代入原有等式就得到：
+$$A'B'=\alpha\beta+\gamma u_{\text{pub}}+\delta \left(u_{\text{priv}}+s(A(\tau)+\alpha)+r(B(\tau)+\beta)+rs\delta\right)$$
+换个写法：
+$$A'B'=\alpha\beta+\gamma u_{\text{pub}}+\delta \left(u_{\text{priv}}+sA'+rB'-rs\delta\right)$$
+你感觉好像可以构造最终的方案了。
+# Groth16 协议
+
+你不太确定你拍脑袋出来的东西能否说服 Alice 和 Bob，但你打算先把方案写出来。
+
+## 初始化阶段
+
+即 $\text{Setup}(1^{\kappa},\mathcal C)$ 阶段，由可信第三方接管。
+
+可信第三方会计算出完整的 $n\times m$ 的矩阵 $A,B,C$ 并通过插值得到公开的多项式：
+$$\{A_i(x)\}_{i=0}^{m-1},\{B_i(x)\}_{i=0}^{m-1},\{C_i(x)\}_{i=0}^{m-1},Z_H(x)$$
+
+可信第三方会公开两个 $p$ 阶椭圆曲线群 $\mathbb G_1,\mathbb G_2$ 和一个 $p$ 阶群 $\mathbb G_T$ 和一个模 $p$ 域 $\mathbb F$，以及双线性配对映射 $e:\mathbb G_1\times \mathbb G_2\to \mathbb G_T$。
+
+公开的信息还包括 $\mathbb G_1$ 的生成元 $G_1$ 和 $\mathbb G_2$ 的生成元 $G_2$。
+
+接下来可信第三方会从 $\mathbb F\setminus \{0\}$ 中随机选取 $\alpha,\beta,\gamma,\delta,\tau$ 五个参数。
+
+接下来，可信第三方会公布 $\mathbb G_1$ 上的若干点，包括：
+$$\alpha G_1,\beta G_1,\delta G_1,\{A_i(\tau)G_1\}_{i=0}^{m-1},\{B_i(\tau)G_1\}_{i=0}^{m-1}$$
+$$\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}G_1\right\}_{i=0}^{k},\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\delta}G_1\right\}_{i=k+1}^{m-1}$$
+$$\left\{\dfrac{\tau ^iZ_H(\tau)}{\delta}G_1\right\}_{i=0}^{n-2}$$
+然后，可信第三方会公布 $\mathbb G_2$ 上的若干点，包括：
+$$\beta G_2,\gamma G_2,\delta G_2,\{B_i(\tau)G_2\}_{i=0}^{m-1}$$
+可信第三方显然公布了大量信息，这些信息被一起编码为 $\text{CRS}$。
+
+公布完毕后，可信第三方随后物理销毁被生成且未公布的参数，尤其是 $\alpha,\beta,\gamma,\delta,\tau$。
+## 证明生成阶段
+
+即 $\text{Prove}$ 阶段，Alice 接受 $\text{CRS}$ 和 $\boldsymbol x$，自己持有 $\boldsymbol w$。
+
+Alice 可以快速利用 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 这一约束得到完整的 $\boldsymbol z$，利用完整的 $\boldsymbol z$ 可以用公式：
+$$A(x)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(x)$$
+$$B(x)=\displaystyle\sum_{i=0}^{m-1}z_iB_i(x)$$
+$$C(x)=\displaystyle\sum_{i=0}^{m-1}z_iC_i(x)$$
+得到完整的 $A(x),B(x),C(x)$，并利用公式 $Q(x)=\dfrac{A(x)B(x)-C(x)}{Z_H(x)}$ 得到 $Q(x)$ 的系数：
+$$Q(x)=\displaystyle\sum_{i=0}^{n-2}q_ix^i$$
+
+然后，Alice 会从 $\mathbb F$ 中均匀随机选取 $r,s$ 两个盲化因子，计算出：
+$$A'G_1=\alpha G_1+ r\delta G_1+\displaystyle\sum_{i=0}^{m-1}z_i(A_i(\tau)G_1)$$
+
+$$B'G_2=\beta G_2+ s\delta G_2+\displaystyle\sum_{i=0}^{m-1}z_i(B_i(\tau)G_2)$$
+$$C'G_1=s(A'G_1)+r\left(\beta G_1+\sum_{i=0}^{m-1}z_i(B_i(\tau)G_1)\right)+\sum_{i=k+1}^{m-1}z_i\left(\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\delta}G_1\right)+\sum_{i=0}^{n-2}q_i\left(\dfrac{\tau ^iZ_H(\tau)}{\delta}G_1\right)$$
+将 $\pi=(A'G_1,B'G_2,C'G_1)$ 作为证书发送给 Bob。
+## 验证阶段
+
+即 $\text{Verify}$ 阶段，Bob 接受 $\text{CRS}$ 和 $\pi$，自己持有 $\boldsymbol x$。
+
+Bob 首先计算 $u_{\text{pub}}G_1$：
+$$u_{\text{pub}}G_1=\dfrac{\beta A_0(\tau)+\alpha B_0(\tau)+C_0(\tau)}{\gamma}G_1+\displaystyle\sum_{i=1}^{k}x_i\left(\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}G_1\right)$$
+随后验证等式是否成立：
+$$e(A'G_1,B'G_2)\stackrel{?}{=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cdot e(C'G_1,\delta G_2)$$
+其中 $e(\alpha G_1,\beta G_2)$ 也可以由可信第三方代为计算。
+
+如果等式成立，$\text{Verify}$ 返回 1，Bob 相信 Alice 持有合法的 $\boldsymbol w$，否则不信。
+
+你感觉这个算法很有道理啊，那么，要如何蒙……啊不，严谨地展示给 Alice 和 Bob，使得他们相信你呢？
+# 正确性与安全性证明
+
+你回忆了一下一开始 Alice 和 Bob 的要求是什么。
+
+好像是四个，完备性，即 Alice 的正确证明总能被 Bob 接受；计算可靠性，Alice 的伪证被 Bob 接受的概率可忽略；零知识性，即可信第三方可以造出没人能分清的 $(\text{CRS}^*,\pi^*)$；还有高效性，让 Bob 的计算量比较小。
+
+其中高效性这个已经可以看出来了，Bob 需要计算椭圆曲线上点的一个线性组合，还有至少三次双线性配对，那么，你注意到，如果将椭圆曲线的点加法计算、双线性配对计算和域上乘法运算看成常数值，整个计算复杂度仅与 $\boldsymbol x$ 的长度 $k$ 成正比，即 $O(k)$，与电路大小和 $\boldsymbol w$ 的长度都无关，应当还是较为高效的。
+
+虽然你听说双线性配对计算起来比较慢，但你想了一下，Bob 只需要计算三次，应该还可以。
+
+而且就算不高效了，我这个都已经写出来了，难道还回炉重造？你对自己说。
+
+但其它的呢？
+
+## 完美完备性
+
+其中完备性在你看来是最简单的了。
+
+>**定理（完美完备性）**
+>
+>在第三方可信的前提下，Alice 如果持有能使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$ 的 $\boldsymbol w$。
+>按照流程生成的证明 $\pi=\text{Prove}(\text{CRS},\boldsymbol x,\boldsymbol w)$ 必定有 $\text{Verify}(\text{CRS},\boldsymbol x,\pi)=1$。
+
+**证明：**
+
+由于前文的推导，Alice 如果持有能使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$ 的 $\boldsymbol w$，那么 Alice 计算出的 $A'G_1,B'G_2,C'G_1$ 必然满足：
+$$A'B'=\alpha\beta+\gamma u_{\text{pub}}+\delta C'$$
+用双线性配对来描述，就其实是：
+$$e(A'G_1,B'G_2)=e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cdot e(C'G_1,\delta G_2)$$
+等式必然成立，故 $\text{Verify}(\text{CRS},\boldsymbol x,\pi)=1$。$\blacksquare$
+
+因此，Alice 如果持有 $\boldsymbol w$ 并且遵守规则，则 Alice 的证明 $\pi$ 必定被 Bob 接受。
+## 计算可靠性
+
+假设在第三方可信的前提下，Alice 在流程中仍然通过运行一个概率多项式算法以不可忽略的概率找到了一个伪证 $\pi^*$，使得 $\text{Verify}(\text{CRS},\pi^*)=1$。
+
+你表示，Bob 呀，遇到这种情况，我一者为你悲伤，二者为你道喜呀！恭喜 Bob 可以解决难题了！
+
+你看如果 Alice 找到了伪证 $\pi^*$ 你就可以解决离……啊？还不能？
+
+你表示有些尴尬，你赶紧查了一下论文。
+
+啊，啊哈哈哈，你眼珠一转，有了！
+
+与其寻找假设，不如自己创造一个假设！
+
+>**假设（代数群模型）**
+>
+>对一个 $p$ 阶椭圆曲线群 $\mathbb G$，其中 $p$ 约为 $2^{2\kappa}$ 量级，且 $\mathbb F$ 是模 $p$ 有限域，可信第三方已公开了 $P_1,P_2,\cdots,P_N$ 这些群元素，如果敌手 $\mathcal A$ 输出了一个元素 $Y\in\mathbb G$，则 $\mathcal A$ 一定已知并能同时输出一组标量系数 $\begin{pmatrix}c_1&c_2&\cdots&c_N\end{pmatrix}\in \mathbb F^N$，满足：
+>$$Y=\displaystyle\sum_{i=1}^{N}c_iP_i$$
+
+诶呀，Bob，这真不是我瞎编的。
+
+Bob，我知道在椭圆曲线上随便找一个点是容易的，但是，如果你在椭圆曲线上随便找一个点，那么它几乎不可能满足我们那个严苛的双线性配对等式的，所以如果 Alice 是一个有点智商的人，她也会选择用线性组合的方式来制作伪证。
+
+Bob，这真不是我乱编的，虽然你可能没有在 16 年之前的论文中看到过这个，但，但，其实，它，哦对，它是基于对椭圆曲线的正确认识而来的，所以实则很有道理！
+
+但你回头看了一下，你好像还不够证啊！
+
+啊……你终于找到了，诶呀，有权威背书的感觉真好。
+
+>**困难问题（$t$-离散对数困难假设）**
+>
+>对两个 $p$ 阶椭圆曲线群 $\mathbb G_1,\mathbb G_2$，其中 $p$ 约为 $2^{2\kappa}$ 量级，且 $\mathbb F$ 是模 $p$ 有限域。
+> 
+> 其中 $\mathbb G_1$ 的生成元是 $G_1$ 和 $\mathbb G_2$ 的生成元是 $G_2$，$\tau$ 从 $\mathbb F\setminus\{0\}$ 中随机选取。
+>
+>给定 $G_1,\tau G_1,\tau^2 G_1,\cdots,\tau^t G_1$ 和 $G_2,\tau G_2,\tau^2 G_2,\cdots,\tau^t G_2$。
+>
+>敌手 $\mathcal A$ 运行概率多项式时间算法得到 $\tau$ 的概率是可忽略的。
+
+啊，Bob 你看那些顶级密码学家也是在这蒙……啊不，严谨地定义的，你看是不是使得我的假设更加令人信服了呢？
+
+你似乎蒙过了 Bob，你大为满意。
+
+总之你继续开始了推导。
+
+在此之前，你回忆了一下你的数学知识，确认了最后一个事实：
+
+>**简单问题（有限域多项式求根）**
+>
+>设 $\mathbb F$ 是模质数 $p$ 下的有限域，$f(x)\in \mathbb F[x]$ 是一个次数为 $d$ 的非零多项式。
+>
+>则存在概率多项式时间算法，能在 $O(d\cdot \log d\cdot \log p)$ 时间复杂度内求出 $f(x)$ 在 $\mathbb F$ 中的所有根。
+
+你感觉你脑中的一根线通了。
+
+>**定理（计算可靠性）**
+>
+>在第三方可信的前提下，Alice 如果用概率多项式算法以不可忽略的概率 $\varepsilon$，生成了证明 $\pi^*$ 使得 $\text{Verify}(\text{CRS},\boldsymbol x,\pi^*)=1$。
+>
+>并且承认代数群模型假设和$t$-离散对数困难假设为真。
+>
+>则存在提取器，可以使用概率多项式时间的算法以 $\varepsilon-\text{negl}(\kappa)$ 的概率从 Alice 那里提取出满足 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$ 的 $\boldsymbol w$。
+
+Bob 啊，这个提取器你可以想象成你拥有一个超能力，比如你拥有：
+
+- 读心术，你可以读到 Alice 必须知道的知识。
+- 时间回溯，如果你对一次的结果不满意你可以倒带，不过这里用不上，因为它是非交互式的。
+
+众所周知，拥有一点超能力并不会让你变得聪明，所以如果你用提取器提取出了 $\boldsymbol w$，那这个知识产权本质上是归属于 Alice 的，也就证明了计算可靠性。
+
+**证明：**
+
+当 Alice 生成的证明 $\pi=(A^*G_1,B^*G_2,C^*G_1)$ 能够满足等式：
+$$e(A^*G_1,B^*G_2)=e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cdot e(C^*G_1,\delta G_2)$$
+则由 代数群模型假设 $A^*,B^*,C^*$ 必定对应一组系数展开，Bob，你动用超能力可以得到这组展开，不妨将其写为展开系数的形式：
+$$A^*(\tau) = a_\alpha \alpha + a_\beta \beta + a_\delta \delta + \sum_{i=0}^{m-1} a_{A, i} A_i(\tau) + \sum_{i=0}^{m-1} a_{B, i} B_i(\tau) + \sum_{i=0}^k a_{\text{pub}, i} \frac{\beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau)}{\gamma} + \sum_{i=k+1}^{m-1} a_{\text{priv}, i} \frac{\beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau)}{\delta} + \sum_{j=0}^{n-2} a_{H, j} \frac{\tau^j Z_H(\tau)}{\delta}$$
+$$B^*(\tau) = b_\beta \beta + b_\gamma \gamma + b_\delta \delta + \sum_{i=0}^{m-1} b_{B, i} B_i(\tau)$$
+
+$$C^*(\tau) = c_\alpha \alpha + c_\beta \beta + c_\delta \delta + \sum_{i=0}^{m-1} c_{A, i} A_i(\tau) + \sum_{i=0}^{m-1} c_{B, i} B_i(\tau) + \sum_{i=0}^k c_{\text{pub}, i} \frac{\beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau)}{\gamma} + \sum_{i=k+1}^{m-1} c_{\text{priv}, i} \frac{\beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau)}{\delta} + \sum_{j=0}^{n-2} c_{H, j} \frac{\tau^j Z_H(\tau)}{\delta}$$
+那么，由于 $\text{Verify}(\text{CRS},\boldsymbol x,\pi^*)=1$，我们有：
+$$A^* (\tau) B^*(\tau) - \alpha\beta - \sum_{i=0}^k x_i \Big( \beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau) \Big) - \delta  C^* (\tau)=0$$
+虽然式子中有分式，但可以将其有理化，因此亦可等价于约 $2n$ 次多项式方程看待。
+
+现在的问题是，如果将 $\alpha,\beta,\gamma,\delta,\tau$ 看作形式变量，多元有理分式：
+$$F(\alpha,\beta,\gamma,\delta,\tau)=A^* (\tau) B^*(\tau) - \alpha\beta - \sum_{i=0}^k x_i \Big( \beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau) \Big) - \delta  C^* (\tau)$$
+
+是否恒等于 0？
+
+如果多元有理分式不恒等于 0 ，Alice 恰好蒙出了一组根，那么，由于 Schwartz-Zippel 引理，该情况发生的概率是可忽略的。
+
+如果多元有理分式不恒等于 0 ，Alice 的惊世智慧发力了，找到了 $\alpha,\beta,\gamma,\delta,\tau$ 的某些性质，但是 Bob 的机会也来了，他可以随机挑一个变量，然后用超能力买通（注意这个买通是为了构造解决困难问题的反证，后续证明仍假设没有买通）可信第三方，让可信第三方出示其它变量，然后，Bob 只需要解一个不超过 $2n$ 次的方程就可以解决 $t$-离散对数困难问题，而由于这个问题我们假设是困难的，因此这种情况发生的概率也是可忽略的。
+
+因此剩下的概率不可忽略，即多元有理分式 $F(\alpha,\beta,\gamma,\delta,\tau)$ 恒等于 0。
+
+那么，不妨构造 $\boldsymbol  z'$ 和 $Q'(x),A'(x),B'(x),C'(x)$ 使得：$$\boldsymbol z'=\begin{pmatrix}1&x_1&x_2&\cdots&x_k&c_{\text{priv},k+1}&c_{\text{priv},k+2}&\cdots&c_{\text{priv},m-1}\end{pmatrix}^T\in \mathbb F^m$$$$Q'(x)=\displaystyle\sum_{i=0}^{n-2}c_{H,i}x^i$$
+$$A'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'A_i(x),B'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'B_i(x),C'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'C_i(x)$$
+考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\alpha\beta$ 次项：
+$$a_\alpha b_\beta=1$$
+故 $a_\alpha\ne 0$ 且 $b_\beta\ne 0$，由线性放缩，不妨取 $a_{\alpha}=b_{\beta}=1$。
+
+考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\alpha$ 次项（不含 $\beta$ 或 $\gamma^{-1}$ 项）：
+$$\alpha \left( b_\delta \delta + \sum_{i=0}^{m-1} b_{B, i} B_i(\tau) - \sum_{i=0}^k x_i B_i(\tau) - \sum_{i=k+1}^{m-1} c_{\text{priv}, i} B_i(\tau) \right)$$
+因此 $B'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'B_i(x)=\displaystyle\sum_{i=0}^{m-1}b_{B,i}B_i(x)$。
+再考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\beta$ 次项（不含 $\alpha$ 或 $\gamma^{-1}$ 项）：
+$$\beta \left( a_\beta \beta + a_\delta \delta + \sum_{i=0}^{m-1} a_{A, i} A_i(\tau) + \sum_{i=0}^{m-1} a_{B, i} B_i(\tau) - \sum_{i=0}^k x_i A_i(\tau) - \sum_{i=k+1}^{m-1} c_{\text{priv}, i} A_i(\tau) \right)$$
+因此 $A'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'A_i(x)=\displaystyle\sum_{i=0}^{m-1}a_{A,i}A_i(x)$
+再考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 中不含 $\alpha,\beta,\gamma,\delta$ 的项：
+$$A'(\tau) B'(\tau) - \left( \sum_{i=0}^k x_i C_i(\tau) + \sum_{i=k+1}^{m-1} c_{\text{priv}, i} C_i(\tau) \right) - \left( \sum_{j=0}^{n-2} c_{H, j} \tau^j \right) Z_H(\tau) \equiv 0$$
+也就恰好有：
+$$A'(x)B'(x)-C'(x)-Q'(x)Z_H(x)\equiv 0$$
+因此，也就有 $(A\boldsymbol z')\circ (B\boldsymbol z')\equiv C\boldsymbol z'$，取 $\boldsymbol w=\begin{pmatrix}c_{\text{priv},k+1}&c_{\text{priv},k+2}&\cdots&c_{\text{priv},k+l}\end{pmatrix}^T\in \mathbb F^l$，即可使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$。因此提取器以不可忽略的概率得到了解，即证实了计算可靠性。$\blacksquare$
+
+## 完美零知识性
+
+此时你看向 Alice，不知道为什么，你感觉这个证明其实是有点偏爱 Alice 的，因为你忽然发现，这个流程实际上具有完美零知识性，也就是说，模拟器造出来的伪证根本无法被区分。
+
+至少 Bob 算得方便了，你想着。
+
+>**定理（完美零知识性）**
+>
+>在 Groth16 协议的流程中存在概率多项式时间的模拟器 $\text{Sim}$，它由两个部分 $\text{Sim}_1$ 和 $\text{Sim}_2$ 组成，其中：
+>
+>$\text{Sim}_1(1^{\kappa},\mathcal C)$ 接受安全参数 $\kappa$ 和电路 $\mathcal C$ 生成带有陷门 $\text{td}$ 的参考串 $\text{CRS}^*$。
+>
+>$\text{Sim}_2(\text{CRS}^*,\text{td},\boldsymbol x)$ 在不输入见证 $\boldsymbol w$ 的前提下，生成模拟证明 $\pi^*$。
+>
+>其中设 $\mathbb F$ 是模 $p$ 有限域。
+>
+>设 $\mathcal R=\{(\boldsymbol x,\boldsymbol w)\in \mathbb F^k\times\mathbb F^l\mid\mathcal C(\boldsymbol x,\boldsymbol w)=1\}$ 为关系。
+>
+>则真实实验 $(\text{CRS},\boldsymbol x,\text{Prove}(\text{CRS},\boldsymbol x,\boldsymbol w))$ 和模拟实验 $(\text{CRS}^*,\boldsymbol x,\text{Sim}_2(\text{CRS}^*,\text{td},\boldsymbol x))$ 的输出分布统计完全同一，即任何算力不受限的区分器都无法区分。
+
+既然模拟器除了权限一点知识都没有，那么这个意义上的无法区分就说明证明中确实没有透露一点关于 $\boldsymbol w$ 的信息。
+
+**证明：**
+
+这当然是因为模拟器从可信第三方入手简直和开了挂一样。
+
+其中 $\text{Sim}_1$ 用和 $\text{Setup}$ 生成 $\text{CRS}$ 完全一样的方法生成 $\text{CRS}^*$，但是保留 $\text{td}=(\alpha,\beta,\gamma,\delta,\tau)$ 并输出。
+
+而 $\text{Sim}_2$ 从 $\mathbb F$，即模 $p$ 有限域中随机采样两个标量 $a,b$。
+
+利用公开输入计算：
+$$u_{\text{pub}}=\dfrac{\beta A_0(\tau)+\alpha B_0(\tau)+C_0(\tau)}{\gamma}+\sum_{i=1}^kx_i\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}$$
+然后利用 $\text{td}$ 提供的标量 $\delta$ 计算标量 $c$ 满足：
+$$c=\delta^{-1}(ab-\alpha\beta-\gamma\cdot u_{\text{pub}})$$
+
+然后输出模拟证明 $\pi^*=(aG_1,bG_2,cG_1)$。
+
+这里，由于 $\text{Sim}_1$ 和 $\text{Setup}$ 的采样完全一致，故 $\text{CRS}$ 和 $\text{CRS}^*$ 的分布统计完全一致。
+
+考虑在真实证明 $\pi$ 中的 $A'G_1$ 和模拟证明 $\pi^*$ 中的 $aG_1$，其中真实证明 $\pi$ 中：
+$$A'G_1=\alpha G_1+ r\delta G_1+\displaystyle\sum_{i=0}^{m-1}z_i(A_i(\tau)G_1)$$
+由于加入了独立均匀选取的盲化因子 $r$ 且 $\delta\ne 0$，故 $A'G_1$ 独立于 $\text{CRS}$ 在 $\mathbb G_1$ 中服从均匀分布。
+
+而 $aG_1$ 独立于 $\text{CRS}^*$ 在 $\mathbb G_1$ 中也服从均匀分布。
+
+因此 $(\text{CRS},A'G_1)$ 联合分布与 $(\text{CRS}^*,aG_1)$ 联合分布相同。
+
+考虑在真实证明 $\pi$ 中的 $B'G_2$ 和模拟证明 $\pi^*$ 中的 $bG_2$，其中真实证明 $\pi$ 中：
+$$B'G_2=\beta G_2+ s\delta G_2+\displaystyle\sum_{i=0}^{m-1}z_i(B_i(\tau)G_2)$$
+由于加入了独立均匀选取的盲化因子 $s$ 且 $\delta\ne 0$，由于 $s$ 是独立均匀选取的，故 $B'G_2$ 独立于 $A' G_1$ 在 $\mathbb G_2$ 中服从均匀分布。
+
+而 $bG_2$ 也独立于 $aG_1$在 $\mathbb G_2$ 中服从均匀分布。
+
+因此 $(\text{CRS},A'G_1,B'G_2)$ 联合分布与 $(\text{CRS}^*,aG_1,bG_2)$ 联合分布相同。
+
+考虑在真实证明 $\pi$ 中的 $C'G_1$ 和模拟证明 $\pi^*$ 中的 $cG_1$，其中真实证明 $\pi$ 中 $C'G_1$ 是满足关于 $P$ 的方程：
+$$e(A'G_1,B'G_2){=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cdot e(P,\delta G_2)$$
+的唯一解。
+
+而模拟证明 $\pi^*$ 中 $cG_1$ 是满足关于 $Q$ 的方程：
+$$e(aG_1,bG_2){=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cdot e(Q,\delta G_2)$$
+的唯一解。
+
+由于联合分布和方程形式都相同，因此 $(\text{CRS},\pi)$ 联合分布与 $(\text{CRS}^*,\pi^*)$ 联合分布相同。即输出分布统计完全同一。$\blacksquare$
+
+你松了一口气，也许 Alice 那边会比较好说服一点。
+
+你提醒 Alice 和 Bob，Alice 如果要向 Bob 提交一个证明，最好将全部能被 Bob 识别的信息作为公开输入 $\boldsymbol x$ 的一部分，因为如果 $\pi=(aG_1,bG_2,cG_1)$ 是一个合法的证明，任取 $u\in \mathbb F\setminus\{0\}$，$\pi^*=(au^{-1}G_1,buG_2,cG_1)$ 也是合法的，这种情况可能会被恶意攻击者利用，但如果攻击者不能篡改 $\boldsymbol x$，通常就无法达到目的。
+
+当然，这绝不是说前面的安全性是假的，只是现实总是复杂的，密码学要考虑很多情况的安全性。
+
+# 尾声
+
+在这之后，Alice 和 Bob 似乎对这个协议比较满意了，他们使用了很长一段时间，不过有的时候，也听到他们向你吐槽一些事情。
+
+比如说他们有的时候会怀疑可信第三方是不是真的可信，为此你表示，或许可以把 $\text{Setup}$ 做成多方参与的形式，只要一方诚实地销毁了自己的参数，整个流程就是安全的，然而，你确实感觉你一开始的 $\text{Setup}$ 流程设计太过麻烦，如果拆成多方计算，需要相对复杂的流程，你感觉你的脑细胞不够用了。
+
+此外，他们有时也会抱怨如果更换一个电路 $\mathcal C$，就得重新请第三方搞一次计算操作，这你也无奈，这是流程初始设计埋下的暗坑。
+
+然而，有的时候你还是会回想起 Alice 和 Bob，想到这一串有趣的推导流程。
