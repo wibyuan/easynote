@@ -72,9 +72,9 @@ Alice 和 Bob 同意了，你松了一口气，这样大概率会让你的设计
 
 零知识性，欸，怎么让 Alice 确信 Bob 不能获得任何知识呢？
 
-哦，有了！再加一个组件 $\text{Sim}(\tau,\boldsymbol x)$，既然假设可信第三方拥有一些不能分享给 Alice 或 Bob 的重要信息，钦定 $\tau$ 是从第三方那里薅过来的不能分享给 Alice 和 Bob 的信息（虽然还不知道那是什么），这个模拟器不知道 $\boldsymbol w$。
+哦，有了！再加一个组件 $\text{Sim}(\text{td},\boldsymbol x)$，既然假设可信第三方拥有一些不能分享给 Alice 或 Bob 的重要信息，钦定 $\text{td}$ 是从第三方那里薅过来的不能分享给 Alice 和 Bob 的信息（虽然还不知道那是什么），这个模拟器不知道 $\boldsymbol w$。
 
-$\text{Sim}(\tau,\boldsymbol x)$ 生成 $(\text{CRS}^*,\pi^*)$，也就是假公共参数和伪证，那么，如果凭借这种不公平的信息优势可以生成无法用概率多项式时间算法以不可忽略的概率将 $(\text{CRS}^*,\pi^*)$ 真实证明过程的 $(\text{CRS},\pi)$ 区分的假公共参数和伪证，那我不就证明了 Bob 不可能获得关于 $\boldsymbol w$ 的知识嘛，毕竟随时有一个伪证可以造出来！
+$\text{Sim}(\text{td},\boldsymbol x)$ 生成 $(\text{CRS}^*,\pi^*)$，也就是假公共参数和伪证，那么，如果凭借这种不公平的信息优势可以生成无法用概率多项式时间算法以不可忽略的概率将 $(\text{CRS}^*,\pi^*)$ 真实证明过程的 $(\text{CRS},\pi)$ 区分的假公共参数和伪证，那我不就证明了 Bob 不可能获得关于 $\boldsymbol w$ 的知识嘛，毕竟随时有一个伪证可以造出来！
 
 此外， Bob 另外提出了一个要求，他表示，自己那方没有 Alice 那边的算力，因此希望自己这边的算力比较轻量，不过你当前连方案都没设计出来，你勉强表示重视，但暂时搁置了。
 
@@ -123,7 +123,7 @@ $$(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$$
 > 且 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$ 当且仅当存在一组 $\boldsymbol v=\begin{pmatrix}v_1&v_2&\cdots&v_{m-l-k-1}\end{pmatrix}^T\in \mathbb F^{m-l-k-1}$ 使得 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$。
 
 不难看出，$A,B,C$ 的建模意图是，利用域的组合完备性，使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$ 当且仅当，在 $\boldsymbol x$ 和 $\boldsymbol w$
- 已知的前提下，$(Az)\circ (Bz)=Cz$ 有解，而且最好这个解比较容易求。
+ 已知的前提下，$(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol  z$ 有解，而且最好这个解比较容易求。
 
 解比较容易求这个还是容易实现的，建立约束的时候简单一点就行了。
 
@@ -142,11 +142,11 @@ $$(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$$
 
 考虑条件选择器，$\begin{cases}c\cdot (c-1)=0\\c\cdot(a-b)=(z-b)\end{cases}$，不难看出，当 $c=0$ 时，$z=b$，当 $c=1$ 时，$z=a$。
 
-位拆分，$\begin{cases}{b_i}\cdot(b_i-1)=0&0\le i\le 2\kappa\\x\cdot 1=\displaystyle\sum_{i=0}^{2\kappa}b_i 2^i\end{cases}$
+位拆分，$\begin{cases}{b_i}\cdot(b_i-1)=0&0\le i\le\lfloor\log_2 p\rfloor\\x\cdot 1=\displaystyle\sum_{i=0}^{\lfloor \log_2 p\rfloor}b_i 2^i\end{cases}$
 
 而随机存取可以用条件选择器来实现内存读写。
 
-因此，你看出来了，这个简单的 $(Az)\circ (Bz)=Cz$ 确实可以实现任意组合逻辑。
+因此，你看出来了，这个简单的 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 确实可以实现任意组合逻辑。
 ## 多项式插值
 
 你听说过有一个拉格朗日插值的方法，具体而言，在有限域上选定 $n$ 个不同的元素集合：
@@ -198,7 +198,7 @@ $A(x)B(x)-C(x)$ 在 $x\in H$ 时总是为 0 意味着什么呢？
 
 你感觉差不多了，但是还差一点点东西，你不太确定是什么。
 
-## 单变量下的  Schwartz-Zippel 引理
+## Schwartz-Zippel 引理
 
 你注意到一个事情，一个 $d$ 次多项式，它在模 $p$ 有限域中，至多只有 $d$ 个根。
 
@@ -216,7 +216,15 @@ $A(x)B(x)-C(x)$ 在 $x\in H$ 时总是为 0 意味着什么呢？
 
 反过来，对于一个多项式 $f(x)$，如果它不是 0 多项式，你只需要知道 $f(\alpha)$ 的值，其中 $\alpha$ 是随机的，你错误地判断它是 0 多项式的概率是 $\dfrac dp$，而 $p$ 是 $2^{2\kappa}$ 量级，因此，错误判断的概率是可以忽略的。
 
-你恍然大悟，你大体上明白了你需要一个机制，让 Alice 给 Bob 提供多项式的求值，并让 Bob 相信，这些值是由满足对应约束多项式求值得到的。
+类似地，也有多变量下的形式，你感觉比较容易理解，用归纳法做一个扩展即可，先记下，说不定什么时候会用到。
+
+>**定理（多元 Schwartz-Zippel 引理）**
+>
+>如果 $\mathbb F$ 是模 $p$ 有限域， $f(x_1,x_2,\cdots,x_v)\in \mathbb F[x_1,x_2,\cdots,x_v]$ 是总次数为 $d$ 次非零多项式。
+>
+>任取 $S\subseteq \mathbb F$，从 $S$ 中均匀独立选取 $r_1,r_2,\cdots,r_v$，则 $f(r_1,r_2,\cdots,r_v)=0$ 的概率不大于 $\dfrac{d}{|S|}$。
+
+总之，你大体上明白了你需要一个机制，让 Alice 给 Bob 提供多项式的求值，并让 Bob 相信，这些值是由满足对应约束多项式求值得到的。
 
 但怎么才能做到这点呢？
 # 多项式承诺
@@ -249,7 +257,7 @@ $A(x)B(x)-C(x)$ 在 $x\in H$ 时总是为 0 意味着什么呢？
 >
 >第三是可计算性，映射 $e$ 可以被高效计算。
 >
->第四是非对称性，即 $\mathbb G_1\ne\mathbb G_2$ 且不存在可在概率多项式时间计算的 $\varphi:\mathbb G_1\to \mathbb G_2$ 或 $\psi:\mathbb G_2\to \mathbb G_1$使得 $\varphi$ 或 $\psi$ 是非平凡的群同态映射。
+>第四是非对称性，即 $\mathbb G_1\ne\mathbb G_2$ 且不存在可在概率多项式时间计算的 $\varphi:\mathbb G_1\to \mathbb G_2$ 或 $\psi:\mathbb G_2\to \mathbb G_1$ 使得 $\varphi$ 或 $\psi$ 是非平凡的群同态映射。
 
 你看着这些信息，灵光一闪。
 ## 初始思考
@@ -281,7 +289,7 @@ Alice 虽然被迫使用同一组线性组合，但她仍然有可能伪造 $\bo
 
 $$(A(\tau)+\alpha)(B(\tau)+\beta)=\alpha\beta+\sum_{i=0}^{m-1}z_i(\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau))+Q(\tau)Z_H(\tau)$$
 
-你灵光一闪，引入了两个随机偏移量 $\gamma,\delta\in F\setminus\{0\}$  使得 $\gamma\ne \delta$，并令：
+你灵光一闪，引入了两个随机偏移量 $\gamma,\delta\in \mathbb F\setminus\{0\}$  使得 $\gamma\ne \delta$，并令：
 $$u_{\text{pub}}=\sum_{i=0}^kz_i\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}$$
 $$u_{\text{priv}}=\dfrac{Q(\tau)Z_H(\tau)}{\delta}+\sum_{i=k+1}^{m-1}z_i\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\delta}$$
 然后就有：
@@ -400,9 +408,9 @@ $$e(A'G_1,B'G_2)=e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cd
 等式必然成立，故 $\text{Verify}(\text{CRS},\boldsymbol x,\pi)=1$。$\blacksquare$
 
 因此，Alice 如果持有 $\boldsymbol w$ 并且遵守规则，则 Alice 的证明 $\pi$ 必定被 Bob 接受。
-## 计算可靠性
+## 知识可靠性
 
-假设在第三方可信的前提下，Alice 在流程中仍然通过运行一个概率多项式算法以不可忽略的概率找到了一个伪证 $\pi^*$，使得 $\text{Verify}(\text{CRS},\pi^*)=1$。
+假设在第三方可信的前提下，Alice 在流程中仍然通过运行一个概率多项式算法以不可忽略的概率找到了一个伪证 $\pi^*$，使得 $\text{Verify}(\text{CRS},\boldsymbol x,\pi^*)=1$。
 
 你表示，Bob 呀，遇到这种情况，我一者为你悲伤，二者为你道喜呀！恭喜 Bob 可以解决难题了！
 
@@ -455,7 +463,7 @@ Bob，这真不是我乱编的，虽然你可能没有在 16 年之前的论文�
 
 你感觉你脑中的一根线通了。
 
->**定理（计算可靠性）**
+>**定理（知识可靠性）**
 >
 >在第三方可信的前提下，Alice 如果用概率多项式算法以不可忽略的概率 $\varepsilon$，生成了证明 $\pi^*$ 使得 $\text{Verify}(\text{CRS},\boldsymbol x,\pi^*)=1$。
 >
@@ -468,7 +476,7 @@ Bob 啊，这个提取器你可以想象成你拥有一个超能力，比如你�
 - 读心术，你可以读到 Alice 必须知道的知识。
 - 时间回溯，如果你对一次的结果不满意你可以倒带，不过这里用不上，因为它是非交互式的。
 
-众所周知，拥有一点超能力并不会让你变得聪明，所以如果你用提取器提取出了 $\boldsymbol w$，那这个知识产权本质上是归属于 Alice 的，也就证明了计算可靠性。
+众所周知，拥有一点超能力并不会让你变得聪明，所以如果你用提取器提取出了 $\boldsymbol w$，那这个知识产权本质上是归属于 Alice 的，也就证明了 Alice 拥有确实知识，即知识可靠性，那么相对应的，Alice 成功制造伪证的概率自然是可忽略的，也就证明了计算可靠性。
 
 **证明：**
 
@@ -480,37 +488,41 @@ $$B^*(\tau) = b_\beta \beta + b_\gamma \gamma + b_\delta \delta + \sum_{i=0}^{m-
 
 $$C^*(\tau) = c_\alpha \alpha + c_\beta \beta + c_\delta \delta + \sum_{i=0}^{m-1} c_{A, i} A_i(\tau) + \sum_{i=0}^{m-1} c_{B, i} B_i(\tau) + \sum_{i=0}^k c_{\text{pub}, i} \frac{\beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau)}{\gamma} + \sum_{i=k+1}^{m-1} c_{\text{priv}, i} \frac{\beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau)}{\delta} + \sum_{j=0}^{n-2} c_{H, j} \frac{\tau^j Z_H(\tau)}{\delta}$$
 那么，由于 $\text{Verify}(\text{CRS},\boldsymbol x,\pi^*)=1$，我们有：
-$$A^* (\tau) B^*(\tau) - \alpha\beta - \sum_{i=0}^k x_i \Big( \beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau) \Big) - \delta  C^* (\tau)=0$$
-虽然式子中有分式，但可以将其有理化，因此亦可等价于约 $2n$ 次多项式方程看待。
+$$A^* (\tau) B^*(\tau) - \alpha\beta - \sum_{i=0}^k z_i \Big( \beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau) \Big) - \delta  C^* (\tau)=0$$
+虽然式子中有分式，但可以将其有理化，因此亦可等价于不超过 $3n+1$ 次多项式方程看待。
 
 现在的问题是，如果将 $\alpha,\beta,\gamma,\delta,\tau$ 看作形式变量，多元有理分式：
-$$F(\alpha,\beta,\gamma,\delta,\tau)=A^* (\tau) B^*(\tau) - \alpha\beta - \sum_{i=0}^k x_i \Big( \beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau) \Big) - \delta  C^* (\tau)$$
+$$F(\alpha,\beta,\gamma,\delta,\tau)=A^* (\tau) B^*(\tau) - \alpha\beta - \sum_{i=0}^k z_i \Big( \beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau) \Big) - \delta  C^* (\tau)$$
 
 是否恒等于 0？
 
-如果多元有理分式不恒等于 0 ，Alice 恰好蒙出了一组根，那么，由于 Schwartz-Zippel 引理，该情况发生的概率是可忽略的。
+如果多元有理分式不恒等于 0 ，Alice 恰好蒙出了一组根，那么，考虑到 $F(\alpha,\beta,\gamma,\delta,\tau)\delta^2\gamma^2$ 是各项次数仍然不大于 $3n+1$ 的多元多项式，由多元 Schwartz-Zippel 引理，该情况发生的概率是可忽略的。
 
-如果多元有理分式不恒等于 0 ，Alice 的惊世智慧发力了，找到了 $\alpha,\beta,\gamma,\delta,\tau$ 的某些性质，但是 Bob 的机会也来了，他可以随机挑一个变量，然后用超能力买通（注意这个买通是为了构造解决困难问题的反证，后续证明仍假设没有买通）可信第三方，让可信第三方出示其它变量，然后，Bob 只需要解一个不超过 $2n$ 次的方程就可以解决 $t$-离散对数困难问题，而由于这个问题我们假设是困难的，因此这种情况发生的概率也是可忽略的。
+如果多元有理分式不恒等于 0 ，Alice 的惊世智慧发力了，找到了 $\alpha,\beta,\gamma,\delta,\tau$ 的某些性质，但是 Bob 的机会也来了，他可以随机挑一个变量，然后用超能力买通（注意这个买通是为了构造解决困难问题的反证，后续证明仍假设没有买通）可信第三方，让可信第三方出示其它变量，然后，Bob 只需要解一个不超过 $3n+1$ 次的方程就可以解决 $t$-离散对数困难问题，而由于这个问题我们假设是困难的，因此这种情况发生的概率也是可忽略的。
 
 因此剩下的概率不可忽略，即多元有理分式 $F(\alpha,\beta,\gamma,\delta,\tau)$ 恒等于 0。
 
 那么，不妨构造 $\boldsymbol  z'$ 和 $Q'(x),A'(x),B'(x),C'(x)$ 使得：$$\boldsymbol z'=\begin{pmatrix}1&x_1&x_2&\cdots&x_k&c_{\text{priv},k+1}&c_{\text{priv},k+2}&\cdots&c_{\text{priv},m-1}\end{pmatrix}^T\in \mathbb F^m$$$$Q'(x)=\displaystyle\sum_{i=0}^{n-2}c_{H,i}x^i$$
 $$A'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'A_i(x),B'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'B_i(x),C'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'C_i(x)$$
-考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\alpha\beta$ 次项：
-$$a_\alpha b_\beta=1$$
-故 $a_\alpha\ne 0$ 且 $b_\beta\ne 0$，由线性放缩，不妨取 $a_{\alpha}=b_{\beta}=1$。
+考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\alpha\beta$ 项：
+$$\alpha\beta (a_\alpha b_\beta-1)$$
+故 $a_\alpha b_\beta=1$，由线性放缩，不妨取 $a_{\alpha}=b_{\beta}=1$。
 
-考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\alpha$ 次项（不含 $\beta$ 或 $\gamma^{-1}$ 项）：
-$$\alpha \left( b_\delta \delta + \sum_{i=0}^{m-1} b_{B, i} B_i(\tau) - \sum_{i=0}^k x_i B_i(\tau) - \sum_{i=k+1}^{m-1} c_{\text{priv}, i} B_i(\tau) \right)$$
+考虑 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\alpha \gamma$ 项：
+$$\alpha\gamma b_\gamma a_{\alpha}$$
+由于 $A^*(\tau)$ 含有 $a_\alpha$ 项必然非零，所以 $b_{\gamma}=0$ 必然成立，因此无需担心后续 $\gamma$ 和 $\gamma^{-1}$ 对消，含 $\gamma$ 的项在证明中始终为 0。
+
+考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\alpha$ 项（不含 $\beta$ 或 $\gamma^{-1}$ 项）：
+$$\alpha \left( b_\delta \delta + \sum_{i=0}^{m-1} b_{B, i} B_i(\tau) - \sum_{i=0}^k z_i B_i(\tau) - \sum_{i=k+1}^{m-1} c_{\text{priv}, i} B_i(\tau) \right)$$
 因此 $B'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'B_i(x)=\displaystyle\sum_{i=0}^{m-1}b_{B,i}B_i(x)$。
-再考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\beta$ 次项（不含 $\alpha$ 或 $\gamma^{-1}$ 项）：
-$$\beta \left( a_\beta \beta + a_\delta \delta + \sum_{i=0}^{m-1} a_{A, i} A_i(\tau) + \sum_{i=0}^{m-1} a_{B, i} B_i(\tau) - \sum_{i=0}^k x_i A_i(\tau) - \sum_{i=k+1}^{m-1} c_{\text{priv}, i} A_i(\tau) \right)$$
+再考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\beta$ 项（不含 $\alpha$ 或 $\gamma^{-1}$ 项）：
+$$\beta \left( a_\beta \beta + a_\delta \delta + \sum_{i=0}^{m-1} a_{A, i} A_i(\tau) + \sum_{i=0}^{m-1} a_{B, i} B_i(\tau) - \sum_{i=0}^k z_i A_i(\tau) - \sum_{i=k+1}^{m-1} c_{\text{priv}, i} A_i(\tau) \right)$$
 因此 $A'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'A_i(x)=\displaystyle\sum_{i=0}^{m-1}a_{A,i}A_i(x)$
 再考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 中不含 $\alpha,\beta,\gamma,\delta$ 的项：
-$$A'(\tau) B'(\tau) - \left( \sum_{i=0}^k x_i C_i(\tau) + \sum_{i=k+1}^{m-1} c_{\text{priv}, i} C_i(\tau) \right) - \left( \sum_{j=0}^{n-2} c_{H, j} \tau^j \right) Z_H(\tau) \equiv 0$$
+$$A'(\tau) B'(\tau) - \left( \sum_{i=0}^k z_i C_i(\tau) + \sum_{i=k+1}^{m-1} c_{\text{priv}, i} C_i(\tau) \right) - \left( \sum_{j=0}^{n-2} c_{H, j} \tau^j \right) Z_H(\tau) \equiv 0$$
 也就恰好有：
 $$A'(x)B'(x)-C'(x)-Q'(x)Z_H(x)\equiv 0$$
-因此，也就有 $(A\boldsymbol z')\circ (B\boldsymbol z')\equiv C\boldsymbol z'$，取 $\boldsymbol w=\begin{pmatrix}c_{\text{priv},k+1}&c_{\text{priv},k+2}&\cdots&c_{\text{priv},k+l}\end{pmatrix}^T\in \mathbb F^l$，即可使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$。因此提取器以不可忽略的概率得到了解，即证实了计算可靠性。$\blacksquare$
+因此，也就有 $(A\boldsymbol z')\circ (B\boldsymbol z')\equiv C\boldsymbol z'$，取 $\boldsymbol w=\begin{pmatrix}c_{\text{priv},k+1}&c_{\text{priv},k+2}&\cdots&c_{\text{priv},k+l}\end{pmatrix}^T\in \mathbb F^l$，即可使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$。因此提取器以不可忽略的概率得到了解，即证实了知识可靠性。$\blacksquare$
 
 ## 完美零知识性
 
@@ -579,7 +591,7 @@ $$e(aG_1,bG_2){=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cd
 
 你松了一口气，也许 Alice 那边会比较好说服一点。
 
-你提醒 Alice 和 Bob，Alice 如果要向 Bob 提交一个证明，最好将全部能被 Bob 识别的信息作为公开输入 $\boldsymbol x$ 的一部分，因为如果 $\pi=(aG_1,bG_2,cG_1)$ 是一个合法的证明，任取 $u\in \mathbb F\setminus\{0\}$，$\pi^*=(au^{-1}G_1,buG_2,cG_1)$ 也是合法的，这种情况可能会被恶意攻击者利用，但如果攻击者不能篡改 $\boldsymbol x$，通常就无法达到目的。
+你提醒 Alice 和 Bob，Alice 如果要向 Bob 提交一个证明，最好将全部能被 Bob 识别的信息作为公开输入 $\boldsymbol x$ 的一部分，因为如果 $\pi=(A'G_1,B'G_2,C'G_1)$ 是一个合法的证明，任取 $u\in \mathbb F\setminus\{0\}$，$\pi^*=(u^{-1}A'G_1,uB'G_2,C'G_1)$ 也是合法的，这种情况可能会被恶意攻击者利用，但如果攻击者不能篡改 $\boldsymbol x$，通常就无法达到目的。
 
 当然，这绝不是说前面的安全性是假的，只是现实总是复杂的，密码学要考虑很多情况的安全性。
 
