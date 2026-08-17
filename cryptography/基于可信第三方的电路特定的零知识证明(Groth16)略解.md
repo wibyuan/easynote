@@ -73,20 +73,20 @@ Alice 和 Bob 同意了，你松了一口气，这样大概率会让你的设计
 
 你的流程需要三个组件，$\text{Setup},\text{Prove},\text{Verify}$。
 
-当流程开始时，一个可信的第三方运行 $\text{Setup}(1^{\kappa},\mathcal C)$，具体而言，可信第三方接受 $\kappa$ 和 $\mathcal C$，并生成一个公共的串 $\text{CRS}$，这个串对 Alice 和 Bob 共享，但是可信第三方不能透露更多的信息，在这一流程结束后，可信第三方不应该参与剩余流程。
+当流程开始时，一个可信的第三方运行 $\text{Setup}(1^{\kappa},\mathcal C)\to (\text{PK},\text{VK})$，具体而言，可信第三方接受 $\kappa$ 和 $\mathcal C$，并生成一对 $(\text{PK},\text{VK})$，形式上，$\text{PK}$ 代表 Alice 需要知道的内容，$\text{VK}$ 代表 Bob 需要知道的内容，但 $(\text{PK},\text{VK})$ 对双方都共享，可信第三方不能透露更多的信息，在这一流程结束后，可信第三方不应该参与剩余流程。
 
-然后，Alice 自己运行 $\text{Prove}(\text{CRS},\boldsymbol x,\boldsymbol w)$，生成证明 $\pi$ 发给 Bob。
+然后，Alice 自己运行 $\text{Prove}(\text{PK},\boldsymbol x,\boldsymbol w)\to\pi$，生成证明 $\pi$ 发给 Bob。
 
-最后，Bob 自己运行 $\text{Verify}(\text{CRS},\boldsymbol x,\pi)$ 如果结果是 1，则相信 Alice，否则不信。
+最后，Bob 自己运行 $\text{Verify}(\text{VK},\boldsymbol x,\pi)\to \{0,1\}$ 如果结果是 1，则相信 Alice，否则不信。
 
 哇，看起来很好耶，但是交互又到哪里去呢，你不太在意，在你看来，也许打个补丁可以解决，但是现在你懒得想交互的事情了。
 ## 安全性约束
 
 然后为了满足 Alice 和 Bob 的要求，你打算形式化他们的需求，主要是三个要素。
 
-完备性，即如果 Alice 确实知道一个满足要求的 $\boldsymbol w$，那么按照流程走，生成的 $\pi$ 不被 $\text{Verify}(\text{CRS},\boldsymbol x,\pi)$ 的接受的概率是可忽略的，即按流程走几乎必然被接受。
+完备性，即如果 Alice 确实知道一个满足要求的 $\boldsymbol w$，那么按照流程走，生成的 $\pi$ 不被 $\text{Verify}(\text{VK},\boldsymbol x,\pi)$ 的接受的概率是可忽略的，即按流程走几乎必然被接受。
 
-知识可靠性，即如果 Alice 确实不知道一个满足要求的 $\boldsymbol w$，那么运行任意概率多项式算法，生成的 $\pi^*$ 被 $\text{Verify}(\text{CRS},\boldsymbol x,\pi^*)$ 的接受的概率是可忽略的，即伪造证明几乎必然不被接受。
+知识可靠性，即如果 Alice 确实不知道一个满足要求的 $\boldsymbol w$，那么运行任意概率多项式算法，生成的 $\pi^*$ 被 $\text{Verify}(\text{VK},\boldsymbol x,\pi^*)$ 的接受的概率是可忽略的，即伪造证明几乎必然不被接受。
 
 零知识性，即 Bob 从 Alice 的证明 $\pi$ 中，无法获得任何关于寻找 $C(\boldsymbol x,\boldsymbol w)=1$ 的解 $\boldsymbol w$ 的辅助信息。
 
@@ -383,18 +383,20 @@ $$\{A_i(x)\}_{i=0}^{m-1},\{B_i(x)\}_{i=0}^{m-1},\{C_i(x)\}_{i=0}^{m-1},Z_H(x)$$
 
 接下来可信第三方会从 $\mathbb F\setminus \{0\}$ 中随机选取 $\alpha,\beta,\gamma,\delta,\tau$ 五个参数。
 
-接下来，可信第三方会公布 $\mathbb G_1$ 上的若干点，包括：
-$$\alpha G_1,\beta G_1,\delta G_1,\{A_i(\tau)G_1\}_{i=0}^{m-1},\{B_i(\tau)G_1\}_{i=0}^{m-1}$$
-$$\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}G_1\right\}_{i=0}^{k},\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\delta}G_1\right\}_{i=k+1}^{m-1}$$
-$$\left\{\dfrac{\tau ^iZ_H(\tau)}{\delta}G_1\right\}_{i=0}^{n-2}$$
-然后，可信第三方会公布 $\mathbb G_2$ 上的若干点，包括：
-$$\beta G_2,\gamma G_2,\delta G_2,\{B_i(\tau)G_2\}_{i=0}^{m-1}$$
-可信第三方显然公布了大量信息，这些信息被一起编码为 $\text{CRS}$。
+接下来，可信第三方会公布 $\mathbb G_1$ 和 $\mathbb G_2$ 上的若干点，其中，被编码为 $\text{PK}$ 的点包括：
+$$\alpha G_1,\{A_i(\tau)G_1\}_{i=0}^{m-1},\{B_i(\tau)G_1\}_{i=0}^{m-1},\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\delta}G_1\right\}_{i=k+1}^{m-1},\left\{\dfrac{\tau ^iZ_H(\tau)}{\delta}G_1\right\}_{i=0}^{n-2}\in \mathbb G_1$$
+和 $\{B_i(\tau)G_2\}_{i=0}^{m-1}\in \mathbb G_2$，此外还有两个盲化辅助项 $\beta G_1,\delta G_1$。
+
+而被编码为 $\text{VK}$ 的点包括：
+$$\alpha G_1,\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}G_1\right\}_{i=0}^{k}\in \mathbb G_1$$
+和 $\beta G_2,\gamma G_2,\delta G_2\in \mathbb G_2$。
 
 公布完毕后，可信第三方随后物理销毁被生成且未公布的参数，尤其是 $\alpha,\beta,\gamma,\delta,\tau$。
+
+容易看出 $\text{VK}$ 的信息量远小于 $\text{PK}$。
 ## 证明生成阶段
 
-即 $\text{Prove}$ 阶段，Alice 接受 $\text{CRS}$ 和 $\boldsymbol x$，自己持有 $\boldsymbol w$。
+即 $\text{Prove}$ 阶段，Alice 接受 $\text{PK}$ 和 $\boldsymbol x$，自己持有 $\boldsymbol w$。
 
 Alice 可以快速利用 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 这一约束得到完整的 $\boldsymbol z$，利用完整的 $\boldsymbol z$ 可以用公式：
 $$A(x)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(x)$$
@@ -411,7 +413,7 @@ $$C'G_1=s(A'G_1)+r\left(\beta G_1+\sum_{i=0}^{m-1}z_i(B_i(\tau)G_1)\right)+\sum_
 将 $\pi=(A'G_1,B'G_2,C'G_1)$ 作为证书发送给 Bob。
 ## 验证阶段
 
-即 $\text{Verify}$ 阶段，Bob 接受 $\text{CRS}$ 和 $\pi$，自己持有 $\boldsymbol x$。
+即 $\text{Verify}$ 阶段，Bob 接受 $\text{VK}$ 和 $\pi$，自己持有 $\boldsymbol x$。
 
 Bob 首先计算 $u_{\text{pub}}G_1$：
 $$u_{\text{pub}}G_1=\dfrac{\beta A_0(\tau)+\alpha B_0(\tau)+C_0(\tau)}{\gamma}G_1+\displaystyle\sum_{i=1}^{k}x_i\left(\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}G_1\right)$$
@@ -426,7 +428,7 @@ $$e(A'G_1,B'G_2)\stackrel{?}{=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,
 
 你回忆了一下一开始 Alice 和 Bob 的要求是什么。
 
-好像是四个，完备性，即 Alice 的正确证明总能被 Bob 接受；知识可靠性，Alice 不知道 $\boldsymbol w$ 则伪证被 Bob 接受的概率可忽略；零知识性，即可信第三方可以造出没人能分清的 $(\text{CRS}^*,\pi^*)$；还有高效性，让 Bob 的计算量比较小。
+好像是四个，完备性，即 Alice 的正确证明总能被 Bob 接受；知识可靠性，Alice 不知道 $\boldsymbol w$ 则伪证被 Bob 接受的概率可忽略；零知识性，即可信第三方可以造出没人能分清的 $(\text{PK}^*,\pi^*)$；还有高效性，让 Bob 的计算量比较小。
 
 其中高效性这个已经可以看出来了，Bob 需要计算椭圆曲线上点的一个线性组合，还有至少三次双线性配对，那么，你注意到，如果将椭圆曲线的点加法计算、双线性配对计算和域上乘法运算看成常数值，整个计算复杂度仅与 $\boldsymbol x$ 的长度 $k$ 成正比，即 $O(k)$，与电路大小和 $\boldsymbol w$ 的长度都无关，应当还是较为高效的。
 
@@ -443,7 +445,7 @@ $$e(A'G_1,B'G_2)\stackrel{?}{=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,
 >**定理（完美完备性）**
 >
 >在第三方可信的前提下，Alice 如果持有能使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$ 的 $\boldsymbol w$。
->按照流程生成的证明 $\pi=\text{Prove}(\text{CRS},\boldsymbol x,\boldsymbol w)$ 必定有 $\text{Verify}(\text{CRS},\boldsymbol x,\pi)=1$。
+>按照流程生成的证明 $\pi=\text{Prove}(\text{PK},\boldsymbol x,\boldsymbol w)$ 必定有 $\text{Verify}(\text{VK},\boldsymbol x,\pi)=1$。
 
 **证明：**
 
@@ -451,12 +453,12 @@ $$e(A'G_1,B'G_2)\stackrel{?}{=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,
 $$A'B'=\alpha\beta+\gamma u_{\text{pub}}+\delta C'$$
 用双线性配对来描述，就其实是：
 $$e(A'G_1,B'G_2)=e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cdot e(C'G_1,\delta G_2)$$
-等式必然成立，故 $\text{Verify}(\text{CRS},\boldsymbol x,\pi)=1$。$\blacksquare$
+等式必然成立，故 $\text{Verify}(\text{VK},\boldsymbol x,\pi)=1$。$\blacksquare$
 
 因此，Alice 如果持有 $\boldsymbol w$ 并且遵守规则，则 Alice 的证明 $\pi$ 必定被 Bob 接受。
 ## 知识可靠性
 
-假设在第三方可信的前提下，Alice 在流程中仍然通过运行一个概率多项式算法以不可忽略的概率找到了一个伪证 $\pi^*$，使得 $\text{Verify}(\text{CRS},\boldsymbol x,\pi^*)=1$。
+假设在第三方可信的前提下，Alice 在流程中仍然通过运行一个概率多项式算法以不可忽略的概率找到了一个伪证 $\pi^*$，使得 $\text{Verify}(\text{VK},\boldsymbol x,\pi^*)=1$。
 
 你表示，Bob 呀，遇到这种情况，我一者为你悲伤，二者为你道喜呀！恭喜 Bob 可以解决难题了！
 
@@ -511,7 +513,7 @@ Bob，这真不是我乱编的，虽然你可能没有在 16 年之前的论文�
 
 >**定理（知识可靠性）**
 >
->在第三方可信的前提下，Alice 如果用概率多项式算法以不可忽略的概率 $\varepsilon$，生成了证明 $\pi^*$ 使得 $\text{Verify}(\text{CRS},\boldsymbol x,\pi^*)=1$。
+>在第三方可信的前提下，Alice 如果用概率多项式算法以不可忽略的概率 $\varepsilon$，生成了证明 $\pi^*$ 使得 $\text{Verify}(\text{VK},\boldsymbol x,\pi^*)=1$。
 >
 >并且承认代数群模型假设和$t$-离散对数困难假设为真。
 >
@@ -533,7 +535,7 @@ $$A^*(\tau) = a_\alpha \alpha + a_\beta \beta + a_\delta \delta + \sum_{i=0}^{m-
 $$B^*(\tau) = b_\beta \beta + b_\gamma \gamma + b_\delta \delta + \sum_{i=0}^{m-1} b_{B, i} B_i(\tau)$$
 
 $$C^*(\tau) = c_\alpha \alpha + c_\beta \beta + c_\delta \delta + \sum_{i=0}^{m-1} c_{A, i} A_i(\tau) + \sum_{i=0}^{m-1} c_{B, i} B_i(\tau) + \sum_{i=0}^k c_{\text{pub}, i} \frac{\beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau)}{\gamma} + \sum_{i=k+1}^{m-1} c_{\text{priv}, i} \frac{\beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau)}{\delta} + \sum_{j=0}^{n-2} c_{H, j} \frac{\tau^j Z_H(\tau)}{\delta}$$
-那么，由于 $\text{Verify}(\text{CRS},\boldsymbol x,\pi^*)=1$，我们有：
+那么，由于 $\text{Verify}(\text{VK},\boldsymbol x,\pi^*)=1$，我们有：
 $$A^* (\tau) B^*(\tau) - \alpha\beta - \sum_{i=0}^k z_i \Big( \beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau) \Big) - \delta  C^* (\tau)=0$$
 虽然式子中有分式，但可以将其有理化，因此亦可等价于不超过 $3n+1$ 次多项式方程看待。
 
@@ -572,7 +574,7 @@ $$A'(x)B'(x)-C'(x)-Q'(x)Z_H(x)\equiv 0$$
 
 ## 完美零知识性
 
-此时你看向 Alice，不知道为什么，你感觉这个证明其实是有点偏爱 Alice 的，因为你忽然发现，这个流程实际上具有完美零知识性，也就是说，模拟器造出来的伪证根本无法被区分。
+此时你看向 Alice，不知道为什么，你感觉这个证明其实是有点偏爱 Alice 的，因为你忽然发现，这个流程实际上具有完美零知识性，也就是说，模拟器造出来的模拟证明根本无法被区分。
 
 至少 Bob 算得方便了，你想着。
 
@@ -580,17 +582,17 @@ $$A'(x)B'(x)-C'(x)-Q'(x)Z_H(x)\equiv 0$$
 >
 >在 Groth16 协议的流程中存在概率多项式时间的模拟器 $\text{Sim}$，它由两个部分 $\text{Sim}_1$ 和 $\text{Sim}_2$ 组成，其中：
 >
->$\text{Sim}_1(1^{\kappa},\mathcal C)$ 接受安全参数 $\kappa$ 和电路 $\mathcal C$ 生成带有陷门 $\text{td}$ 的参考串 $\text{CRS}^*$。
+>$\text{Sim}_1(1^{\kappa},\mathcal C)$ 接受安全参数 $\kappa$ 和电路 $\mathcal C$ 生成带有陷门 $\text{td}$ 的参考串 $(\text{PK}^*,\text{VK}^*)$。
 >
->$\text{Sim}_2(\text{CRS}^*,\text{td},\boldsymbol x)$ 在不输入见证 $\boldsymbol w$ 的前提下，生成模拟证明 $\pi^*$。
+>$\text{Sim}_2(\text{td},\boldsymbol x)$ 在不输入见证 $\boldsymbol w$ 的前提下，生成模拟证明 $\pi^*$。
 >
 >其中设 $\mathbb F$ 是模 $p$ 有限域。
 >
 >设 $\mathcal R=\{(\boldsymbol x,\boldsymbol w)\in \mathbb F^k\times\mathbb F^l\mid\mathcal C(\boldsymbol x,\boldsymbol w)=1\}$ 为关系。
 >
->则真实实验 $(\text{CRS},\boldsymbol x,\text{Prove}(\text{CRS},\boldsymbol x,\boldsymbol w))$ 和模拟实验 $(\text{CRS}^*,\boldsymbol x,\text{Sim}_2(\text{CRS}^*,\text{td},\boldsymbol x))$ 的输出分布统计完全同一，即任何算力不受限的区分器都无法区分。
+>则真实实验 $(\text{PK},\text{VK},\boldsymbol x,\text{Prove}(\text{PK},\boldsymbol x,\boldsymbol w))$ 和模拟实验 $(\text{PK}^*,\text{VK}^*,\boldsymbol x,\text{Sim}_2(\text{td},\boldsymbol x))$ 的输出分布统计完全同一，即任何算力不受限的区分器都无法区分。
 
-你告诉 Bob，注意了啊，模拟器能制造伪证，是因为它有更高级的权限，例如打破第三方的可信度，在现实中，只要第三方仍然可信，再满足一点点数学假设，伪证就造不出来，这是由知识可靠性来决定的。
+你告诉 Bob，注意了啊，模拟器能制造模拟证明，是因为它有更高级的权限，例如打破第三方的可信度，在现实中，只要第三方仍然可信，再满足一点点数学假设，模拟证明就造不出来，这是由知识可靠性来决定的。
 
 既然模拟器除了权限一点关于 $\boldsymbol w$ 知识都没有，那么这个意义上的无法区分就说明证明中确实没有透露一点关于 $\boldsymbol w$ 的信息。
 
@@ -598,7 +600,7 @@ $$A'(x)B'(x)-C'(x)-Q'(x)Z_H(x)\equiv 0$$
 
 这当然是因为模拟器从可信第三方入手简直和开了挂一样。
 
-其中 $\text{Sim}_1$ 用和 $\text{Setup}$ 生成 $\text{CRS}$ 完全一样的方法生成 $\text{CRS}^*$，但是保留 $\text{td}=(\alpha,\beta,\gamma,\delta,\tau)$ 并输出。
+其中 $\text{Sim}_1$ 用和 $\text{Setup}$ 生成 $(\text{PK},\text{VK})$ 完全一样的方法生成 $(\text{PK}^*,\text{VK}^*)$，但是保留 $\text{td}=(\alpha,\beta,\gamma,\delta,\tau)$ 并输出。
 
 而 $\text{Sim}_2$ 从 $\mathbb F$，即模 $p$ 有限域中随机采样两个标量 $a,b$。
 
@@ -609,15 +611,15 @@ $$c=\delta^{-1}(ab-\alpha\beta-\gamma\cdot u_{\text{pub}})$$
 
 然后输出模拟证明 $\pi^*=(aG_1,bG_2,cG_1)$。
 
-这里，由于 $\text{Sim}_1$ 和 $\text{Setup}$ 的采样完全一致，故 $\text{CRS}$ 和 $\text{CRS}^*$ 的分布统计完全一致。
+这里，由于 $\text{Sim}_1$ 和 $\text{Setup}$ 的采样完全一致，故 $(\text{PK},\text{VK})$ 和 $(\text{PK}^*,\text{VK}^*)$ 的分布统计完全一致。
 
 考虑在真实证明 $\pi$ 中的 $A'G_1$ 和模拟证明 $\pi^*$ 中的 $aG_1$，其中真实证明 $\pi$ 中：
 $$A'G_1=\alpha G_1+ r\delta G_1+\displaystyle\sum_{i=0}^{m-1}z_i(A_i(\tau)G_1)$$
-由于加入了独立均匀选取的盲化因子 $r$ 且 $\delta\ne 0$，故 $A'G_1$ 独立于 $\text{CRS}$ 在 $\mathbb G_1$ 中服从均匀分布。
+由于加入了独立均匀选取的盲化因子 $r$ 且 $\delta\ne 0$，故 $A'G_1$ 独立于 $\text{PK}$ 在 $\mathbb G_1$ 中服从均匀分布。
 
-而 $aG_1$ 独立于 $\text{CRS}^*$ 在 $\mathbb G_1$ 中也服从均匀分布。
+而 $aG_1$ 独立于 $\text{PK}^*$ 在 $\mathbb G_1$ 中也服从均匀分布。
 
-因此 $(\text{CRS},A'G_1)$ 联合分布与 $(\text{CRS}^*,aG_1)$ 联合分布相同。
+因此 $(\text{PK},\text{VK},A'G_1)$ 联合分布与 $(\text{PK}^*,\text{VK}^*,aG_1)$ 联合分布相同。
 
 考虑在真实证明 $\pi$ 中的 $B'G_2$ 和模拟证明 $\pi^*$ 中的 $bG_2$，其中真实证明 $\pi$ 中：
 $$B'G_2=\beta G_2+ s\delta G_2+\displaystyle\sum_{i=0}^{m-1}z_i(B_i(\tau)G_2)$$
@@ -625,7 +627,7 @@ $$B'G_2=\beta G_2+ s\delta G_2+\displaystyle\sum_{i=0}^{m-1}z_i(B_i(\tau)G_2)$$
 
 而 $bG_2$ 也独立于 $aG_1$在 $\mathbb G_2$ 中服从均匀分布。
 
-因此 $(\text{CRS},A'G_1,B'G_2)$ 联合分布与 $(\text{CRS}^*,aG_1,bG_2)$ 联合分布相同。
+因此 $(\text{PK},\text{VK},A'G_1,B'G_2)$ 联合分布与 $(\text{PK}^*,\text{VK}^*,aG_1,bG_2)$ 联合分布相同。
 
 考虑在真实证明 $\pi$ 中的 $C'G_1$ 和模拟证明 $\pi^*$ 中的 $cG_1$，其中真实证明 $\pi$ 中 $C'G_1$ 是满足关于 $P$ 的方程：
 $$e(A'G_1,B'G_2){=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cdot e(P,\delta G_2)$$
@@ -635,7 +637,7 @@ $$e(A'G_1,B'G_2){=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\
 $$e(aG_1,bG_2){=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cdot e(Q,\delta G_2)$$
 的唯一解。
 
-由于联合分布和方程形式都相同，因此 $(\text{CRS},\pi)$ 联合分布与 $(\text{CRS}^*,\pi^*)$ 联合分布相同。即输出分布统计完全同一。$\blacksquare$
+由于联合分布和方程形式都相同，因此 $(\text{PK},\text{VK},\pi)$ 联合分布与 $(\text{PK}^*,\text{VK}^*,\pi^*)$ 联合分布相同。即输出分布统计完全同一。$\blacksquare$
 
 你松了一口气，也许 Alice 那边会比较好说服一点。
 
