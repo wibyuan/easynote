@@ -34,13 +34,15 @@ Alice 和 Bob 点点头。你捂脸，他们一直精神状态这么美丽吗？
 
 这世界上哪有这么好的事情，等等？
 
-你回想起了你是怎么获得品酒师资格证的，方法是向对面进行多轮交互：
+你回想起了当年某算法发论文上库，你被拉去做 Trained Listener 做 ABX 的惨痛经历，当时你需要做这样的事情 16 轮：
 
-- 对面把各种产地的酒摆在你面前，让你一个个喝掉。
-- 等到感觉差不多了，你一个个把对应的产地写出来。
-- 对方校验，如果你的产地全写对了，对方就认为你有品酒的能力，否则不认为你有品酒的能力。
+- 测试界面上有 3 个按钮 A、B、X。
+- A 是未经压缩的母带，B 是压缩过的音频，X 随机是 A 或 B，里面只有几秒钟的片段，响度被精细调整过控制在几乎一样的分贝。
+- 你选择 X 到底是 A 还是 B。
 
-其中，让对方获得你如何品酒的信息在物理上是不现实的，这是一个高度生理学的能力，但即使被迫零知识，对方也相信了你，因为……交互！
+你被允许有若干轮的走神，如果你对的次数足够多，人们就可以确认低码率下的压缩损伤。
+
+尽管有休息时间，但后面几轮，听了几十遍还没听出区别的痛苦你还是记得的，那几轮听错的你感觉不能被单纯当作走神，但现在想来，你没有公开说明你听音的技巧，而人们相信了一个由你主导的事实——低码率算法压缩在人类听觉上体现有损，这似乎正对应着你被委托的需求。
 
 你明白了，看起来不论最后协议长什么样子，一开始想想交互式协议总不会有大问题。
 ## 严格定义可忽略
@@ -372,14 +374,13 @@ $$A'B'=\alpha\beta+\gamma u_{\text{pub}}+\delta \left(u_{\text{priv}}+sA'+rB'-rs
 
 ## 初始化阶段
 
-即 $\text{Setup}(1^{\kappa},\mathcal C)$ 阶段，由可信第三方接管。
+即 $\text{Setup}(1^{\kappa},\mathcal C)\to (\text{PK},\text{VK})$ 阶段，由可信第三方接管。
 
-可信第三方会计算出完整的 $n\times m$ 的矩阵 $A,B,C$ 并通过插值得到公开的多项式：
+可信第三方会挑选一个大小为 $2^{2\kappa}$ 的特殊质数 $p$ 、模 $p$ 域 $\mathbb F$、两个 $p$ 阶椭圆曲线群 $\mathbb G_1,\mathbb G_2$ 和一个 $p$ 阶群 $\mathbb G_T$ ，以及双线性配对映射 $e:\mathbb G_1\times \mathbb G_2\to \mathbb G_T$，公开的信息还包括 $\mathbb G_1$ 的生成元 $G_1$ 和 $\mathbb G_2$ 的生成元 $G_2$。
+
+可信第三方通过 $\mathcal C$ 和 $\mathbb F$ 可以计算出完整的 $n\times m$ 的矩阵 $A,B,C$ 并通过插值得到公开的多项式：
 $$\{A_i(x)\}_{i=0}^{m-1},\{B_i(x)\}_{i=0}^{m-1},\{C_i(x)\}_{i=0}^{m-1},Z_H(x)$$
-
-可信第三方会公开两个 $p$ 阶椭圆曲线群 $\mathbb G_1,\mathbb G_2$ 和一个 $p$ 阶群 $\mathbb G_T$ 和一个模 $p$ 域 $\mathbb F$，以及双线性配对映射 $e:\mathbb G_1\times \mathbb G_2\to \mathbb G_T$。
-
-公开的信息还包括 $\mathbb G_1$ 的生成元 $G_1$ 和 $\mathbb G_2$ 的生成元 $G_2$。
+你提醒 Alice 和 Bob，这些参数最好选择以确定的简明算法生成的参数，以防止留有后门，一个臭名昭著的例子是 Dual_EC_DRBG，可以用它来观察那些不那么透明的参数会造成哪些恶果；此外，前面的这些步骤是完全公开透明的，你们也可以各自独立计算，而后面的步骤则需要交给第三方。
 
 接下来可信第三方会从 $\mathbb F\setminus \{0\}$ 中随机选取 $\alpha,\beta,\gamma,\delta,\tau$ 五个参数。
 
@@ -387,16 +388,20 @@ $$\{A_i(x)\}_{i=0}^{m-1},\{B_i(x)\}_{i=0}^{m-1},\{C_i(x)\}_{i=0}^{m-1},Z_H(x)$$
 $$\alpha G_1,\{A_i(\tau)G_1\}_{i=0}^{m-1},\{B_i(\tau)G_1\}_{i=0}^{m-1},\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\delta}G_1\right\}_{i=k+1}^{m-1},\left\{\dfrac{\tau ^iZ_H(\tau)}{\delta}G_1\right\}_{i=0}^{n-2}\in \mathbb G_1$$
 和 $\{B_i(\tau)G_2\}_{i=0}^{m-1}\in \mathbb G_2$，此外还有两个盲化辅助项 $\beta G_1,\delta G_1$。
 
+当然，$\text{PK}$ 还至少得包括 $p,\mathbb F,\mathbb G_1,\mathbb G_2,\mathbb G_T,G_1,G_2$。
+
 而被编码为 $\text{VK}$ 的点包括：
 $$\alpha G_1,\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}G_1\right\}_{i=0}^{k}\in \mathbb G_1$$
 和 $\beta G_2,\gamma G_2,\delta G_2\in \mathbb G_2$。
+
+当然，$\text{VK}$ 还至少得包括 $p,\mathbb F,\mathbb G_1,\mathbb G_2,\mathbb G_T,G_1,G_2,e$ 。
 
 公布完毕后，可信第三方随后物理销毁被生成且未公布的参数，尤其是 $\alpha,\beta,\gamma,\delta,\tau$。
 
 容易看出 $\text{VK}$ 的信息量远小于 $\text{PK}$。
 ## 证明生成阶段
 
-即 $\text{Prove}$ 阶段，Alice 接受 $\text{PK}$ 和 $\boldsymbol x$，自己持有 $\boldsymbol w$。
+即 $\text{Prove}(\text{PK},\boldsymbol x,\boldsymbol w)\to\pi$ 阶段，Alice 接受 $\text{PK}$ 和 $\boldsymbol x$，自己持有 $\boldsymbol w$。
 
 Alice 可以快速利用 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 这一约束得到完整的 $\boldsymbol z$，利用完整的 $\boldsymbol z$ 可以用公式：
 $$A(x)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(x)$$
@@ -413,7 +418,7 @@ $$C'G_1=s(A'G_1)+r\left(\beta G_1+\sum_{i=0}^{m-1}z_i(B_i(\tau)G_1)\right)+\sum_
 将 $\pi=(A'G_1,B'G_2,C'G_1)$ 作为证书发送给 Bob。
 ## 验证阶段
 
-即 $\text{Verify}$ 阶段，Bob 接受 $\text{VK}$ 和 $\pi$，自己持有 $\boldsymbol x$。
+即 $\text{Verify}(\text{VK},\boldsymbol x,\pi)\to \{0,1\}$ 阶段，Bob 接受 $\text{VK}$ 和 $\pi$，自己持有 $\boldsymbol x$。
 
 Bob 首先计算 $u_{\text{pub}}G_1$：
 $$u_{\text{pub}}G_1=\dfrac{\beta A_0(\tau)+\alpha B_0(\tau)+C_0(\tau)}{\gamma}G_1+\displaystyle\sum_{i=1}^{k}x_i\left(\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}G_1\right)$$
@@ -582,9 +587,9 @@ $$A'(x)B'(x)-C'(x)-Q'(x)Z_H(x)\equiv 0$$
 >
 >在 Groth16 协议的流程中存在概率多项式时间的模拟器 $\text{Sim}$，它由两个部分 $\text{Sim}_1$ 和 $\text{Sim}_2$ 组成，其中：
 >
->$\text{Sim}_1(1^{\kappa},\mathcal C)$ 接受安全参数 $\kappa$ 和电路 $\mathcal C$ 生成带有陷门 $\text{td}$ 的参考串 $(\text{PK}^*,\text{VK}^*)$。
+>$\text{Sim}_1(1^{\kappa},\mathcal C)\to (\text{td},\text{PK}^*,\text{VK}^*)$ 接受安全参数 $\kappa$ 和电路 $\mathcal C$ 生成带有陷门 $\text{td}$ 的参考串 $(\text{PK}^*,\text{VK}^*)$。
 >
->$\text{Sim}_2(\text{td},\boldsymbol x)$ 在不输入见证 $\boldsymbol w$ 的前提下，生成模拟证明 $\pi^*$。
+>$\text{Sim}_2(\text{td},\boldsymbol x)\to \pi^*$ 在不输入见证 $\boldsymbol w$ 的前提下，生成模拟证明 $\pi^*$。
 >
 >其中设 $\mathbb F$ 是模 $p$ 有限域。
 >
@@ -600,9 +605,11 @@ $$A'(x)B'(x)-C'(x)-Q'(x)Z_H(x)\equiv 0$$
 
 这当然是因为模拟器从可信第三方入手简直和开了挂一样。
 
-其中 $\text{Sim}_1$ 用和 $\text{Setup}$ 生成 $(\text{PK},\text{VK})$ 完全一样的方法生成 $(\text{PK}^*,\text{VK}^*)$，但是保留 $\text{td}=(\alpha,\beta,\gamma,\delta,\tau)$ 并输出。
+其中 $\text{Sim}_1(1^{\kappa},\mathcal C)\to (\text{td},\text{PK}^*,\text{VK}^*)$ 用和 $\text{Setup}(1^{\kappa},\mathcal C)\to (\text{PK},\text{VK})$ 生成 $(\text{PK},\text{VK})$ 完全一样的方法生成 $(\text{PK}^*,\text{VK}^*)$，但是保留 $(\alpha,\beta,\gamma,\delta,\tau)$ 编码进 $\text{td}$ 并输出。
 
-而 $\text{Sim}_2$ 从 $\mathbb F$，即模 $p$ 有限域中随机采样两个标量 $a,b$。
+此外，$\text{td}$ 还得包括 $p,\mathbb F,\mathbb G_1,\mathbb G_2,\mathbb G_T,G_1,G_2$，以及 $\{A_i(x)\}_{i=0}^k,\{B_i(x)\}_{i=0}^k,\{C_i(x)\}_{i=0}^k$，当然，这些是公开信息，写在这里只是为了说清楚信息量。
+
+而 $\text{Sim}_2(\text{td},\boldsymbol x)\to \pi^*$ 从 $\mathbb F$，即模 $p$ 有限域中随机采样两个标量 $a,b$。
 
 利用公开输入计算：
 $$u_{\text{pub}}=\dfrac{\beta A_0(\tau)+\alpha B_0(\tau)+C_0(\tau)}{\gamma}+\sum_{i=1}^kx_i\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}$$
