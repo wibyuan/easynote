@@ -199,7 +199,7 @@ $$(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$$
 
 >**定理（多元 Schwartz-Zippel 引理）**
 >
->如果 $\mathbb F$ 是模 $p$ 有限域， $f(x_1,x_2,\cdots,x_v)\in \mathbb F[x_1,x_2,\cdots,x_v]$ 是总次数为 $d$ 次非零多项式。
+>如果 $\mathbb F$ 是模 $p$ 有限域， $f(X_1,X_2,\cdots,X_v)\in \mathbb F[X_1,X_2,\cdots,X_v]$ 是总次数为 $d$ 次非零多项式。
 >
 >任取 $S\subseteq \mathbb F$，从 $S$ 中均匀独立选取 $r_1,r_2,\cdots,r_v$，则 $f(r_1,r_2,\cdots,r_v)=0$ 的概率不大于 $\dfrac{d}{|S|}$。
 
@@ -232,9 +232,9 @@ $$A_j(\omega_i)=a_{i,j}$$
 $$A(X)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(X)$$
 然后，对 $B,C$ 以同样的方法生成它们的总多项式 $B(X),C(X)$。
 
-由此我们就有多项式转化，即 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 等价于 $A(X)B(X)-C(X)$ 在 $x\in H$ 时总是为 0。
+由此我们就有多项式转化，即 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 等价于 $A(X)B(X)-C(X)$ 在 $X\in H$ 时总是为 0。
 
-$A(X)B(X)-C(X)$ 在 $x\in H$ 时总是为 0 意味着什么呢？
+那么，$A(X)B(X)-C(X)$ 在 $X\in H$ 时总是为 0 意味着什么呢？
 
 意味着存在多项式 $Q(X)$，使得 $A(X)B(X)-C(X)-Q(X)Z_H(X)\equiv 0$，恒等于 0。
 
