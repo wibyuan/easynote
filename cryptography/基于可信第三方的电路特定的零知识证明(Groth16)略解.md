@@ -185,15 +185,15 @@ $$(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$$
 
 >**定理（单变量下的 Schwartz-Zippel 引理）**
 >
->如果 $\mathbb F$ 是模 $p$ 有限域， $f(x)\in \mathbb F[x]$ 是 $d$ 次非零多项式。
+>如果 $\mathbb F$ 是模 $p$ 有限域， $f(X)\in \mathbb F[X]$ 是 $d$ 次非零多项式。
 >
 >在 $\mathbb F$ 中随机取一个元素 $\alpha$，$f(\alpha)=0$ 的概率不大于 $\dfrac d{p}$  。
 
 **证明：**
 
-由于 $f(x)$ 在 $\mathbb F$ 中至多有 $d$ 个根，在 $\mathbb F$ 中随机取一个元素 $\alpha$，恰好取中一个根的概率不大于 $\dfrac d{p}$  。$\blacksquare$
+由于 $f(X)$ 在 $\mathbb F$ 中至多有 $d$ 个根，在 $\mathbb F$ 中随机取一个元素 $\alpha$，恰好取中一个根的概率不大于 $\dfrac d{p}$  。$\blacksquare$
 
-反过来，对于一个多项式 $f(x)$，如果它不是 0 多项式，你只需要知道 $f(\alpha)$ 的值，其中 $\alpha$ 是随机的，你错误地判断它是 0 多项式的概率是 $\dfrac dp$，而 $p$ 是 $2^{2\kappa}$ 量级，因此，错误判断的概率是可以忽略的。
+反过来，对于一个多项式 $f(X)$，如果它不是 0 多项式，你只需要知道 $f(\alpha)$ 的值，其中 $\alpha$ 是随机的，你错误地判断它是 0 多项式的概率是 $\dfrac dp$，而 $p$ 是 $2^{2\kappa}$ 量级，因此，错误判断的概率是可以忽略的。
 
 类似地，也有多变量下的形式，你感觉比较容易理解，用归纳法做一个扩展即可，先记下，说不定什么时候会用到。
 
@@ -223,38 +223,38 @@ $$H=\{\omega_0,\omega_1,\cdots,\omega_{n-1}\}\subseteq \mathbb F$$
 为了方便起见，对 $\boldsymbol z,A,B$ 也采用 0 开头的索引，例如：
 $$\boldsymbol z=\begin{pmatrix}z_0&z_1&\cdots&z_{m-1}\end{pmatrix}^T\in \mathbb F^{m}$$
 
-顺便定义一个消失多项式 $Z_H(x)\in \mathbb F[x]$：
+顺便定义一个消失多项式 $Z_H(X)\in \mathbb F[X]$：
 
-$$Z_H(x)=\prod_{i=0}^{n-1}(x-\omega_i)$$
+$$Z_H(X)=\prod_{i=0}^{n-1}(X-\omega_i)$$
 它可以快速对 $\mathbb F^{n\times m}$ 上的矩阵 $A$ 生成 $m$ 个不超过 $n-1$ 次的多项式，设 $a_{i,j}$ 表示 $A$ 第 $i$ 行第 $j$ 列的值，其中第 $j$ 个多项式 $A_j$ 满足，对任意 $i\in\{0,1,\cdots,n-1\}$ 都有：
 $$A_j(\omega_i)=a_{i,j}$$
-然后设总多项式 $A(x)$ 满足：
-$$A(x)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(x)$$
-然后，对 $B,C$ 以同样的方法生成它们的总多项式 $B(x),C(x)$。
+然后设总多项式 $A(X)$ 满足：
+$$A(X)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(X)$$
+然后，对 $B,C$ 以同样的方法生成它们的总多项式 $B(X),C(X)$。
 
-由此我们就有多项式转化，即 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 等价于 $A(x)B(x)-C(x)$ 在 $x\in H$ 时总是为 0。
+由此我们就有多项式转化，即 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 等价于 $A(X)B(X)-C(X)$ 在 $x\in H$ 时总是为 0。
 
-$A(x)B(x)-C(x)$ 在 $x\in H$ 时总是为 0 意味着什么呢？
+$A(X)B(X)-C(X)$ 在 $x\in H$ 时总是为 0 意味着什么呢？
 
-意味着存在多项式 $Q(x)$，使得 $A(x)B(x)-C(x)-Q(x)Z_H(x)\equiv 0$，恒等于 0。
+意味着存在多项式 $Q(X)$，使得 $A(X)B(X)-C(X)-Q(X)Z_H(X)\equiv 0$，恒等于 0。
 
-但是，$A(x),B(x),C(x),Q(x)$ 在这里不再是公开信息了，它是只有 Alice 可以计算的信息，因此进行拆分。
+但是，$A(X),B(X),C(X),Q(X)$ 在这里不再是公开信息了，它是只有 Alice 可以计算的信息，因此进行拆分。
 
-不妨设 $A_{\text{pub}}(x)=\displaystyle\sum_{i=0}^k z_iA_i(x)=A_0(x)+\displaystyle\sum_{i=1}^k x_iA_i(x)$，和 $A_{\text{priv}}(x)=A(x)-A_{\text{pub}}(x)$。
-同理有 $B_{\text{pub}}(x),C_{\text{pub}}(x),B_{\text{priv}}(x),C_{\text{priv}}(x)$。
+不妨设 $A_{\text{pub}}(X)=\displaystyle\sum_{i=0}^k z_iA_i(X)=A_0(X)+\displaystyle\sum_{i=1}^k x_iA_i(X)$，和 $A_{\text{priv}}(X)=A(X)-A_{\text{pub}}(X)$。
+同理有 $B_{\text{pub}}(X),C_{\text{pub}}(X),B_{\text{priv}}(X),C_{\text{priv}}(X)$。
 
 >**定理（零知识证明的多项式转化）**
 >
 >对于约束 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$，其中 $\mathcal C:\mathbb F^k\times \mathbb F^{l}\to \{0,1\}$， $\boldsymbol x=\begin{pmatrix}x_1&x_2&\cdots&x_k\end{pmatrix}^T\in \mathbb F^k$ 和 $\boldsymbol w=\begin{pmatrix}w_1&w_2&\cdots&w_l\end{pmatrix}^T\in \mathbb F^l$ 。
 >
->其中，$\mathbb F[x]$ 上的多项式 $Z_H(x),A_{\text{pub}}(x),B_{\text{pub}}(x),C_{\text{pub}}(x)$ 是 Alice 和 Bob 共同知晓的公开信息。
+>其中，$\mathbb F[X]$ 上的多项式 $Z_H(X),A_{\text{pub}}(X),B_{\text{pub}}(X),C_{\text{pub}}(X)$ 是 Alice 和 Bob 共同知晓的公开信息。
 >
->如果 Alice 拥有 $\mathbb F[x]$ 上的多项式 $A_{\text{priv}}(x),B_{\text{priv}}(x),C_{\text{priv}}(x),Q(x)$，并使得：
->$$(A_{\text{pub}}(x)+A_{\text{priv}}(x))\cdot (B_{\text{pub}}(x)+B_{\text{priv}}(x))-(C_{\text{pub}}(x)+C_{\text{priv}}(x))-Q(x)Z_H(x)\equiv 0$$
+>如果 Alice 拥有 $\mathbb F[X]$ 上的多项式 $A_{\text{priv}}(X),B_{\text{priv}}(X),C_{\text{priv}}(X),Q(X)$，并使得：
+>$$(A_{\text{pub}}(X)+A_{\text{priv}}(X))\cdot (B_{\text{pub}}(X)+B_{\text{priv}}(X))-(C_{\text{pub}}(X)+C_{\text{priv}}(X))-Q(X)Z_H(X)\equiv 0$$
 >其中 $A_{\text{priv}},B_{\text{priv}},C_{\text{priv}}$  Alice 不能随意构造，而必须以同一个线性组合系数 $\begin{pmatrix}z_{k+1}&z_{k+2}&\cdots&z_{m-1}\end{pmatrix}^T\in \mathbb F^{m-k-1}$ 和公共信息如下构造：
->$$A_{\text{priv}}(x)=\displaystyle\sum_{i=k+1}^{m-1} z_iA_i(x)$$
->$$B_{\text{priv}}(x)=\displaystyle\sum_{i=k+1}^{m-1} z_iB_i(x)$$
->$$C_{\text{priv}}(x)=\displaystyle\sum_{i=k+1}^{m-1} z_iC_i(x)$$
+>$$A_{\text{priv}}(X)=\displaystyle\sum_{i=k+1}^{m-1} z_iA_i(X)$$
+>$$B_{\text{priv}}(X)=\displaystyle\sum_{i=k+1}^{m-1} z_iB_i(X)$$
+>$$C_{\text{priv}}(X)=\displaystyle\sum_{i=k+1}^{m-1} z_iC_i(X)$$
 >
 >则 Alice 可以利用她已知的信息获取 $\boldsymbol w$ 满足 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$。
 
@@ -311,11 +311,11 @@ $A(x)B(x)-C(x)$ 在 $x\in H$ 时总是为 0 意味着什么呢？
 你看了看你式子的加法和乘法，你发现你的乘法也是只有一次的，有了。
 ## 初始思考
 
-你盯着 $A(x)B(x)-C(x)-Q(x)Z_H(x)\equiv 0$ 发呆。
+你盯着 $A(X)B(X)-C(X)-Q(X)Z_H(X)\equiv 0$ 发呆。
 
 你想象着你代入了一个随机值 $\tau$ 使得 $A(\tau)B(\tau)-C(\tau)-Q(\tau)Z_H(\tau)= 0$，但不能直接这样！
 
-因为 Alice 可能会使得 $A(x),B(x),C(x)$ 不是真正由公开信息线性组合而来的。
+因为 Alice 可能会使得 $A(X),B(X),C(X)$ 不是真正由公开信息线性组合而来的。
 
 这怎么破解呢？
 
@@ -325,14 +325,14 @@ $A(x)B(x)-C(x)$ 在 $x\in H$ 时总是为 0 意味着什么呢？
 
 那么 $A(\tau)B(\tau)-C(\tau)-Q(\tau)Z_H(\tau)= 0$ 可以简单地变形一下：
 $$(A(\tau)+\alpha)(B(\tau)+\beta)=\alpha\beta+(\beta A(\tau)+\alpha B(\tau)+C(\tau))+Q(\tau)Z_H(\tau)$$
-这样子，$A(x),B(x),C(x)$ 就被搅在一起了！如果 Alice 用 $A_i,B_i,C_i$ 的不同或无效的线性组合，看起来，有了 $\alpha,\beta$，余项就会搅在一起干扰校验！
+这样子，$A(X),B(X),C(X)$ 就被搅在一起了！如果 Alice 用 $A_i,B_i,C_i$ 的不同或无效的线性组合，看起来，有了 $\alpha,\beta$，余项就会搅在一起干扰校验！
 
 你的眉头舒缓了，但你还是觉得差一点。
 ## 分离公私
 
 你还是找到了你差在哪里。
 
-Alice 虽然被迫使用同一组线性组合，但她仍然有可能伪造 $\boldsymbol x$，或者将 $\boldsymbol z$ 的其它部分和 $\boldsymbol x,Q(x)$ 搅合在一起，必须堵死这个漏洞！
+Alice 虽然被迫使用同一组线性组合，但她仍然有可能伪造 $\boldsymbol x$，或者将 $\boldsymbol z$ 的其它部分和 $\boldsymbol x,Q(X)$ 搅合在一起，必须堵死这个漏洞！
 
 你眉头一皱，展开了式子：
 
@@ -380,7 +380,7 @@ $$A'B'=\alpha\beta+\gamma u_{\text{pub}}+\delta \left(u_{\text{priv}}+sA'+rB'-rs
 可信第三方会挑选一个大小为 $2^{2\kappa}$ 的特殊质数 $p$ 、模 $p$ 域 $\mathbb F$、两个 $p$ 阶椭圆曲线群 $\mathbb G_1,\mathbb G_2$ 和一个 $p$ 阶群 $\mathbb G_T$ ，以及双线性配对映射 $e:\mathbb G_1\times \mathbb G_2\to \mathbb G_T$，公开的信息还包括 $\mathbb G_1$ 的生成元 $G_1$ 和 $\mathbb G_2$ 的生成元 $G_2$。
 
 可信第三方通过 $\mathcal C$ 和 $\mathbb F$ 可以计算出完整的 $n\times m$ 的矩阵 $A,B,C$ 并通过插值得到公开的多项式：
-$$\{A_i(x)\}_{i=0}^{m-1},\{B_i(x)\}_{i=0}^{m-1},\{C_i(x)\}_{i=0}^{m-1},Z_H(x)$$
+$$\{A_i(X)\}_{i=0}^{m-1},\{B_i(X)\}_{i=0}^{m-1},\{C_i(X)\}_{i=0}^{m-1},Z_H(X)$$
 你提醒 Alice 和 Bob，这些参数最好选择以确定的简明算法生成的参数，以防止留有后门，一个臭名昭著的例子是 Dual_EC_DRBG，可以用它来观察那些不那么透明的参数会造成哪些恶果；此外，前面的这些步骤是完全公开透明的，你们也可以各自独立计算，而后面的步骤则需要交给第三方。
 
 接下来可信第三方会从 $\mathbb F\setminus \{0\}$ 中随机选取 $\alpha,\beta,\gamma,\delta,\tau$ 五个参数。
@@ -405,11 +405,11 @@ $$\alpha G_1,\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}G_
 即 $\text{Prove}(\text{PK},\boldsymbol x,\boldsymbol w)\to\pi$ 阶段，Alice 接受 $\text{PK}$ 和 $\boldsymbol x$，自己持有 $\boldsymbol w$。
 
 Alice 可以快速利用 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 这一约束得到完整的 $\boldsymbol z$，利用完整的 $\boldsymbol z$ 可以用公式：
-$$A(x)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(x)$$
-$$B(x)=\displaystyle\sum_{i=0}^{m-1}z_iB_i(x)$$
-$$C(x)=\displaystyle\sum_{i=0}^{m-1}z_iC_i(x)$$
-得到完整的 $A(x),B(x),C(x)$，并利用公式 $Q(x)=\dfrac{A(x)B(x)-C(x)}{Z_H(x)}$ 得到 $Q(x)$ 的系数：
-$$Q(x)=\displaystyle\sum_{i=0}^{n-2}q_ix^i$$
+$$A(X)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(X)$$
+$$B(X)=\displaystyle\sum_{i=0}^{m-1}z_iB_i(X)$$
+$$C(X)=\displaystyle\sum_{i=0}^{m-1}z_iC_i(X)$$
+得到完整的 $A(X),B(X),C(X)$，并利用公式 $Q(X)=\dfrac{A(X)B(X)-C(X)}{Z_H(X)}$ 得到 $Q(X)$ 的系数：
+$$Q(X)=\displaystyle\sum_{i=0}^{n-2}q_iX^i$$
 
 然后，Alice 会从 $\mathbb F$ 中均匀随机选取 $r,s$ 两个盲化因子，计算出：
 $$A'G_1=\alpha G_1+ r\delta G_1+\displaystyle\sum_{i=0}^{m-1}z_i(A_i(\tau)G_1)$$
@@ -513,9 +513,9 @@ Bob，这真不是我乱编的，虽然你可能没有在 16 年之前的论文�
 
 >**简单问题（有限域多项式求根）**
 >
->设 $\mathbb F$ 是模质数 $p$ 下的有限域，$f(x)\in \mathbb F[x]$ 是一个次数为 $d$ 的非零多项式。
+>设 $\mathbb F$ 是模质数 $p$ 下的有限域，$f(X)\in \mathbb F[X]$ 是一个次数为 $d$ 的非零多项式。
 >
->则存在概率多项式时间算法，能在 $O(d\cdot \log d\cdot \log p)$ 时间复杂度内求出 $f(x)$ 在 $\mathbb F$ 中的所有根。
+>则存在概率多项式时间算法，能在 $O(d\cdot \log d\cdot \log p)$ 时间复杂度内求出 $f(X)$ 在 $\mathbb F$ 中的所有根。
 
 你感觉你脑中的一根线通了。
 
@@ -558,8 +558,8 @@ $$F(\alpha,\beta,\gamma,\delta,\tau)=A^* (\tau) B^*(\tau) - \alpha\beta - \sum_{
 
 因此剩下的概率不可忽略，即多元有理分式 $F(\alpha,\beta,\gamma,\delta,\tau)$ 恒等于 0。
 
-那么，不妨构造 $\boldsymbol  z'$ 和 $Q'(x),A'(x),B'(x),C'(x)$ 使得：$$\boldsymbol z'=\begin{pmatrix}1&x_1&x_2&\cdots&x_k&c_{\text{priv},k+1}&c_{\text{priv},k+2}&\cdots&c_{\text{priv},m-1}\end{pmatrix}^T\in \mathbb F^m$$$$Q'(x)=\displaystyle\sum_{i=0}^{n-2}c_{H,i}x^i$$
-$$A'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'A_i(x),B'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'B_i(x),C'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'C_i(x)$$
+那么，不妨构造 $\boldsymbol  z'$ 和 $Q'(X),A'(X),B'(X),C'(X)$ 使得：$$\boldsymbol z'=\begin{pmatrix}1&x_1&x_2&\cdots&x_k&c_{\text{priv},k+1}&c_{\text{priv},k+2}&\cdots&c_{\text{priv},m-1}\end{pmatrix}^T\in \mathbb F^m$$$$Q'(X)=\displaystyle\sum_{i=0}^{n-2}c_{H,i}X^i$$
+$$A'(X)=\displaystyle\sum_{i=0}^{m-1}{z_i}'A_i(X),B'(X)=\displaystyle\sum_{i=0}^{m-1}{z_i}'B_i(X),C'(X)=\displaystyle\sum_{i=0}^{m-1}{z_i}'C_i(X)$$
 考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\alpha\beta$ 项：
 $$\alpha\beta (a_\alpha b_\beta-1)$$
 故 $a_\alpha b_\beta=1$，由线性放缩，不妨取 $a_{\alpha}=b_{\beta}=1$。
@@ -570,14 +570,14 @@ $$\alpha\gamma b_\gamma a_{\alpha}$$
 
 考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\alpha$ 项（不含 $\beta$ 或 $\gamma^{-1}$ 项）：
 $$\alpha \left( b_\delta \delta + \sum_{i=0}^{m-1} b_{B, i} B_i(\tau) - \sum_{i=0}^k z_i B_i(\tau) - \sum_{i=k+1}^{m-1} c_{\text{priv}, i} B_i(\tau) \right)$$
-因此 $B'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'B_i(x)=\displaystyle\sum_{i=0}^{m-1}b_{B,i}B_i(x)$。
+因此 $B'(X)=\displaystyle\sum_{i=0}^{m-1}{z_i}'B_i(X)=\displaystyle\sum_{i=0}^{m-1}b_{B,i}B_i(X)$。
 再考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\beta$ 项（不含 $\alpha$ 或 $\gamma^{-1}$ 项）：
 $$\beta \left( a_\beta \beta + a_\delta \delta + \sum_{i=0}^{m-1} a_{A, i} A_i(\tau) + \sum_{i=0}^{m-1} a_{B, i} B_i(\tau) - \sum_{i=0}^k z_i A_i(\tau) - \sum_{i=k+1}^{m-1} c_{\text{priv}, i} A_i(\tau) \right)$$
-因此 $A'(x)=\displaystyle\sum_{i=0}^{m-1}{z_i}'A_i(x)=\displaystyle\sum_{i=0}^{m-1}a_{A,i}A_i(x)$
+因此 $A'(X)=\displaystyle\sum_{i=0}^{m-1}{z_i}'A_i(X)=\displaystyle\sum_{i=0}^{m-1}a_{A,i}A_i(X)$
 再考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 中不含 $\alpha,\beta,\gamma,\delta$ 的项：
 $$A'(\tau) B'(\tau) - \left( \sum_{i=0}^k z_i C_i(\tau) + \sum_{i=k+1}^{m-1} c_{\text{priv}, i} C_i(\tau) \right) - \left( \sum_{j=0}^{n-2} c_{H, j} \tau^j \right) Z_H(\tau) \equiv 0$$
 也就恰好有：
-$$A'(x)B'(x)-C'(x)-Q'(x)Z_H(x)\equiv 0$$
+$$A'(X)B'(X)-C'(X)-Q'(X)Z_H(X)\equiv 0$$
 因此，也就有 $(A\boldsymbol z')\circ (B\boldsymbol z')\equiv C\boldsymbol z'$，取 $\boldsymbol w=\begin{pmatrix}c_{\text{priv},k+1}&c_{\text{priv},k+2}&\cdots&c_{\text{priv},k+l}\end{pmatrix}^T\in \mathbb F^l$，即可使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$。因此提取器以不可忽略的概率得到了解，即证实了知识可靠性。$\blacksquare$
 
 ## 完美零知识性
@@ -610,7 +610,7 @@ $$A'(x)B'(x)-C'(x)-Q'(x)Z_H(x)\equiv 0$$
 
 其中 $\text{Sim}_1(1^{\kappa},\mathcal C)\to (\text{td},\text{PK}^*,\text{VK}^*)$ 用和 $\text{Setup}(1^{\kappa},\mathcal C)\to (\text{PK},\text{VK})$ 生成 $(\text{PK},\text{VK})$ 完全一样的方法生成 $(\text{PK}^*,\text{VK}^*)$，但是保留 $(\alpha,\beta,\gamma,\delta,\tau)$ 编码进 $\text{td}$ 并输出。
 
-此外，$\text{td}$ 还得包括 $p,\mathbb F,\mathbb G_1,\mathbb G_2,\mathbb G_T,G_1,G_2$，以及 $\{A_i(x)\}_{i=0}^k,\{B_i(x)\}_{i=0}^k,\{C_i(x)\}_{i=0}^k$，当然，这些是公开信息，写在这里只是为了说清楚信息量。
+此外，$\text{td}$ 还得包括 $p,\mathbb F,\mathbb G_1,\mathbb G_2,\mathbb G_T,G_1,G_2$，以及 $\{A_i(X)\}_{i=0}^k,\{B_i(X)\}_{i=0}^k,\{C_i(X)\}_{i=0}^k$，当然，这些是公开信息，写在这里只是为了说清楚信息量。
 
 而 $\text{Sim}_2(\text{td},\boldsymbol x)\to \pi^*$ 从 $\mathbb F$，即模 $p$ 有限域中随机采样两个标量 $a,b$。
 
@@ -651,9 +651,13 @@ $$e(aG_1,bG_2){=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cd
 
 你松了一口气，也许 Alice 那边会比较好说服一点。
 
+## 最后的提醒
+
 你提醒 Alice 和 Bob，Alice 如果要向 Bob 提交一个证明，最好将全部能被 Bob 识别的信息作为公开输入 $\boldsymbol x$ 的一部分，因为如果 $\pi=(A'G_1,B'G_2,C'G_1)$ 是一个合法的证明，任取 $u\in \mathbb F\setminus\{0\}$，$\pi^*=(u^{-1}A'G_1,uB'G_2,C'G_1)$ 也是合法的，这种情况可能会被恶意攻击者利用，但如果攻击者不能篡改 $\boldsymbol x$，通常就无法达到目的。
 
 当然，这绝不是说前面的安全性是假的，只是现实总是复杂的，密码学要考虑很多情况的安全性。
+
+另外，关于安全参数 $\kappa$，你推荐实际中取 $\kappa=128$，因为大量在实践中能用的攻击方式的枚举量是 $\sqrt p$ 量级的，因此 $2^{128}$ 是一个对枚举来说重到不切实际的计算量。
 
 你另外提醒 Bob，可信第三方这里的设置实际上是对 Bob 比较不利的，因为即使第三方和 Bob 串通一气并给出 $\text{td}$，Bob 最多只能自己造伪证而不能提取 Alice 的 $\boldsymbol w$，但如果第三方和 Alice 串通并交出陷门 $\text{td}$，Alice 就可以在没有 $\boldsymbol w$ 的情况下制造伪证蒙骗 Bob，所以，这里的可信第三方设置最好采取什么物理的东西来保证。
 
@@ -667,6 +671,11 @@ $$e(aG_1,bG_2){=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cd
 
 “但除此之外，你们要信任的外人还是太多了。当然，我个人不一定觉得他们能在很久以前就想到来给你们的仪式留下后门，所以还好。”
 
+你讲完，刻意静止了大概十秒，以保持一种庄重的肃穆，不过你自己心里也明白这套流程确实费事。
+
+你没有把它点破的原因是你无法预测客户的需求，也不应当承担降级后的业务风险，而如果 Alice 和 Bob 真的觉得上面那套流程费钱——那太好了，因为他们根本就不需要担心这套流程所防御的风险，然而，你不应该替精神如此美丽的用户擅自降低安全性，尤其是有关要求已经在一开始由你的询问确认。
+
+不论他们实践上是否有采取降级的举措，这都和你无关了，你想着。
 # 尾声
 
 在这之后，Alice 和 Bob 似乎对这个协议比较满意了，他们使用了很长一段时间，不过有的时候，也听到他们向你吐槽一些事情。
