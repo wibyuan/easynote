@@ -232,9 +232,9 @@ $$A_j(\omega_i)=a_{i,j}$$
 $$A(X)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(X)$$
 然后，对 $B,C$ 以同样的方法生成它们的总多项式 $B(X),C(X)$。
 
-由此我们就有多项式转化，即 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 等价于 $A(X)B(X)-C(X)$ 在 $X\in H$ 时总是为 0。
+由此我们就有多项式转化，即 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 等价于 $A(\omega_i)B(\omega_i)-C(\omega_i)$ 在 $\omega_i\in H$ 时总是为 0。
 
-那么，$A(X)B(X)-C(X)$ 在 $X\in H$ 时总是为 0 意味着什么呢？
+那么， $A(\omega_i)B(\omega_i)-C(\omega_i)$ 在 $\omega_i\in H$ 时总是为 0 意味着什么呢？
 
 意味着存在多项式 $Q(X)$，使得 $A(X)B(X)-C(X)-Q(X)Z_H(X)\equiv 0$，恒等于 0。
 
