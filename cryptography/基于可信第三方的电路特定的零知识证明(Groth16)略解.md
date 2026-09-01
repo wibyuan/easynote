@@ -58,7 +58,7 @@ Alice 和 Bob 点点头，你松了一口气。
 
 >**定义（可忽略函数）**
 >
->一个在定义域 $\mathbb N^+$ 上恒为正的函数 $f(\kappa)$ 是**可忽略**的，当且仅当对任意 $\mathbb R[\kappa]$ 上的多项式 $p(\kappa)$：
+>一个在定义域 $\mathbb N^+$ 上恒为正的函数 $f(\kappa)$ 是**可忽略**的，当且仅当对任意 $\mathbb R[\kappa]$ 上的，在 $\kappa$ 充分大时恒为正的多项式 $p(\kappa)$，有：
 >$$\lim_{\kappa\to+\infty}p(\kappa)f(\kappa)=0$$
 >全体可忽略函数组成的集合记作 $\text{negl}(\kappa)$。
 
@@ -87,13 +87,21 @@ Alice 和 Bob 同意了，你松了一口气，这样大概率会让你的设计
 
 然后为了满足 Alice 和 Bob 的要求，你打算形式化他们的需求，主要是三个要素。
 
+你的原则是，既然雇主已经允许了低概率的失误，那就不要把安全条件放得太高，至于你最后的协议如果达到了更强的安全条件，你当然值得自得一番，但如果一开始就定太高的标准，可能就会出事。
+
+因此你打算先把所有安全约束都加上可忽略的失误概率，具体如下：
+
 完备性，即如果 Alice 确实知道一个满足要求的 $\boldsymbol w$，那么按照流程走，生成的 $\pi$ 不被 $\text{Verify}(\text{VK},\boldsymbol x,\pi)$ 的接受的概率是可忽略的，即按流程走几乎必然被接受。
 
-知识可靠性，即如果 Alice 确实不知道一个满足要求的 $\boldsymbol w$，那么运行任意概率多项式算法，生成的 $\pi^*$ 被 $\text{Verify}(\text{VK},\boldsymbol x,\pi^*)$ 的接受的概率是可忽略的，即伪造证明几乎必然不被接受。
+知识可靠性，即如果 Alice 确实不知道一个满足要求的 $\boldsymbol w$，那么运行任意概率多项式算法，生成的 $\pi^*$ 被 $\text{Verify}(\text{VK},\boldsymbol x,\pi^*)$ 的接受的概率是可忽略的，即伪造证明几乎必然不被接受。反过来说，就是，如果 Alice 造出了一个被接受的证明，排除掉发生概率可忽略的情况，则 Alice 必须可以被看作拥有 $\boldsymbol w$。 
 
-零知识性，即 Bob 从 Alice 的证明 $\pi$ 中，无法获得任何关于寻找 $C(\boldsymbol x,\boldsymbol w)=1$ 的解 $\boldsymbol w$ 的辅助信息。
+零知识性，即 Bob 从 Alice 的证明 $\pi$ 中，除了获得“Alice 确实拥有 $C(\boldsymbol x,\boldsymbol w)=1$ 的 $\boldsymbol w$ ”可以直接推导出的信息之外，无法获得任何关于寻找 $C(\boldsymbol x,\boldsymbol w)=1$ 的解 $\boldsymbol w$ 的辅助信息。
 
-此外， Bob 另外提出了一个要求，他表示，自己那方没有 Alice 那边的算力，因此希望自己这边的算力比较轻量，不过你当前连方案都没设计出来，你勉强表示重视，但暂时搁置了。
+此外， Bob 另外提出了一个要求，他表示，自己那方没有 Alice 那边的算力，因此希望自己这边的算力比较轻量，并且，自己那边的网不太好，所以希望 Alice 传输的证明的大小比较小。
+
+“很好嘛，证明的验证必须轻量且简洁。”你点点头。
+
+不过你当前连方案都没设计出来，你勉强表示重视，但暂时搁置了。
 
 好的，那么接下来如何编写可以利用这三个要素的协议呢？
 # 协议构造
@@ -162,12 +170,14 @@ $$(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$$
 然后就有与或非，即 $\neg x=1-x$，$x\land y=xy$，且 $x\lor y=x+y-xy$。
 
 考虑零值测试，$\begin{cases}x\cdot y=1-z\\x\cdot z=0\end{cases}$，无其它限制，此时若 $x=0$ 则 $z=1$，若 $x\ne 0$ 则 $z=0,y=x^{-1}$。
+（注意到 $x=0$ 时 $y$ 可取任意值，如果有额外要求，需要增加额外约束）
 
 零值测试可以等价推导出等值检查。
 
 考虑条件选择器，$\begin{cases}c\cdot (c-1)=0\\c\cdot(a-b)=(z-b)\end{cases}$，不难看出，当 $c=0$ 时，$z=b$，当 $c=1$ 时，$z=a$。
 
-位拆分，$\begin{cases}{b_i}\cdot(b_i-1)=0&0\le i\le\lfloor\log_2 p\rfloor\\x\cdot 1=\displaystyle\sum_{i=0}^{\lfloor \log_2 p\rfloor}b_i 2^i\end{cases}$
+位拆分，$\begin{cases}{b_i}\cdot(b_i-1)=0&0\le i\le\lfloor \log_2 p\rfloor\\x\cdot 1=\displaystyle\sum_{i=0}^{\lfloor \log_2 p\rfloor}b_i 2^i\end{cases}$
+（这里是用于存储的唯一拆分，完整域元素拆分需要配合范围检查）
 
 而随机存取可以用条件选择器来实现内存读写。
 
@@ -183,7 +193,7 @@ $$(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$$
 
 换句话说：
 
->**定理（单变量下的 Schwartz-Zippel 引理）**
+>**定理（域上非零单变量多项式根的性质）**
 >
 >如果 $\mathbb F$ 是模 $p$ 有限域， $f(X)\in \mathbb F[X]$ 是 $d$ 次非零多项式。
 >
@@ -197,7 +207,7 @@ $$(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$$
 
 类似地，也有多变量下的形式，你感觉比较容易理解，用归纳法做一个扩展即可，先记下，说不定什么时候会用到。
 
->**定理（多元 Schwartz-Zippel 引理）**
+>**定理（Schwartz-Zippel 引理）**
 >
 >如果 $\mathbb F$ 是模 $p$ 有限域， $f(X_1,X_2,\cdots,X_v)\in \mathbb F[X_1,X_2,\cdots,X_v]$ 是总次数为 $d$ 次非零多项式。
 >
@@ -226,7 +236,8 @@ $$\boldsymbol z=\begin{pmatrix}z_0&z_1&\cdots&z_{m-1}\end{pmatrix}^T\in \mathbb 
 顺便定义一个消失多项式 $Z_H(X)\in \mathbb F[X]$：
 
 $$Z_H(X)=\prod_{i=0}^{n-1}(X-\omega_i)$$
-它可以快速对 $\mathbb F^{n\times m}$ 上的矩阵 $A$ 生成 $m$ 个不超过 $n-1$ 次的多项式，设 $a_{i,j}$ 表示 $A$ 第 $i$ 行第 $j$ 列的值，其中第 $j$ 个多项式 $A_j$ 满足，对任意 $i\in\{0,1,\cdots,n-1\}$ 都有：
+
+那么，考虑多项式插值，我们可以利用多项式插值快速对 $\mathbb F^{n\times m}$ 上的矩阵 $A$ 生成 $m$ 个不超过 $n-1$ 次的多项式，设 $a_{i,j}$ 表示 $A$ 第 $i$ 行第 $j$ 列的值，其中第 $j$ 个多项式 $A_j$ 满足，对任意 $i\in\{0,1,\cdots,n-1\}$ 都有：
 $$A_j(\omega_i)=a_{i,j}$$
 然后设总多项式 $A(X)$ 满足：
 $$A(X)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(X)$$
@@ -236,7 +247,7 @@ $$A(X)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(X)$$
 
 那么， $A(\omega_i)B(\omega_i)-C(\omega_i)$ 在 $\omega_i\in H$ 时总是为 0 意味着什么呢？
 
-意味着存在多项式 $Q(X)$，使得 $A(X)B(X)-C(X)-Q(X)Z_H(X)\equiv 0$，恒等于 0。
+意味着存在（次数不超过 $n-2$ 的）多项式 $Q(X)$，使得 $A(X)B(X)-C(X)-Q(X)Z_H(X)\equiv 0$，恒等于 0。
 
 但是，$A(X),B(X),C(X),Q(X)$ 在这里不再是公开信息了，它是只有 Alice 可以计算的信息，因此进行拆分。
 
@@ -260,7 +271,9 @@ $$A(X)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(X)$$
 
 **证明：**
 
-取线性组合系数，等价于得到了 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 的解。$\blacksquare$
+取线性组合系数 $\boldsymbol z$，其中前 $k+1$ 个分量被公开参数固定，可以看作是 1 和 $\boldsymbol x=\begin{pmatrix}x_1&x_2&\cdots&x_k\end{pmatrix}^T$。
+
+由于对任意 $\omega_i\in H$，就有 $A(\omega_i)B(\omega_i)-C(\omega_i)=0$，根据拉格朗日插值 $A(\omega_i)$ 相当于 $A$ 对应行乘上 $\boldsymbol z$ 的值，代入，等价于得到了 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$ 的解。$\blacksquare$
 
 你感觉差不多了，但是还差一点点东西，你不太确定是什么。
 
@@ -274,7 +287,7 @@ $$A(X)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(X)$$
 
 ## 数学知识
 
-你听说椭圆曲线的加法群 $\mathbb G$ 是一个困难的群，它上面未解的难题简直是批发的，其中一个是椭圆曲线的离散对数问题，具体而言：
+你听说椭圆曲线的加法群 $\mathbb G$ 是一个困难的群，它上面未解的难题简直是批发的，其中一个是椭圆曲线的离散对数问题，比如这是其中一个例子：
 
 >**困难问题（椭圆曲线上的离散对数问题）**
 >
@@ -284,7 +297,7 @@ $$A(X)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(X)$$
 
 当然其实你并不知道是不是真的没有，但数学家们说没找到，你姑且假设没有。
 
-你为此感到非常好，不是因为它很难，而是因为，在椭圆曲线上，你拿到了 $aG,bG,cG$，你把它加起来就可以判断 $a+b\stackrel{?}{=}c$ 是否成立，但你却完全无法得到 $a,b,c$。
+你为此感到非常好，不是因为它很难，而是因为，在椭圆曲线上，你拿到了 $aG,bG,cG$，你把它加起来就可以判断 $a+b\stackrel{?}{=}c$ 是否成立，但你却完全无法得到 $a,b,c$（你心里嘀咕，这个“完全无法得到”是不是比求不出来更强一点，但你姑且先继续推导吧）。
 
 你感到很有意思，但是还缺一个乘法呀，于是你就多看了几篇有关的文章。
 
@@ -332,7 +345,7 @@ $$(A(\tau)+\alpha)(B(\tau)+\beta)=\alpha\beta+(\beta A(\tau)+\alpha B(\tau)+C(\t
 
 你还是找到了你差在哪里。
 
-Alice 虽然被迫使用同一组线性组合，但她仍然有可能伪造 $\boldsymbol x$，或者将 $\boldsymbol z$ 的其它部分和 $\boldsymbol x,Q(X)$ 搅合在一起，必须堵死这个漏洞！
+Alice 虽然被迫使用同一组线性组合，但她仍然有可能伪造 $\boldsymbol x$，或者将 $\boldsymbol z$ 的其它部分（例如 Alice 本来就掌控的秘密信息 $\boldsymbol w,\boldsymbol v$）和 $\boldsymbol x,Q(X)$ 搅合在一起，必须堵死这个漏洞！
 
 你眉头一皱，展开了式子：
 
@@ -387,7 +400,7 @@ $$\{A_i(X)\}_{i=0}^{m-1},\{B_i(X)\}_{i=0}^{m-1},\{C_i(X)\}_{i=0}^{m-1},Z_H(X)$$
 
 接下来，可信第三方会公布 $\mathbb G_1$ 和 $\mathbb G_2$ 上的若干点，其中，被编码为 $\text{PK}$ 的点包括：
 $$\alpha G_1,\{A_i(\tau)G_1\}_{i=0}^{m-1},\{B_i(\tau)G_1\}_{i=0}^{m-1},\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\delta}G_1\right\}_{i=k+1}^{m-1},\left\{\dfrac{\tau ^iZ_H(\tau)}{\delta}G_1\right\}_{i=0}^{n-2}\in \mathbb G_1$$
-和 $\{B_i(\tau)G_2\}_{i=0}^{m-1}\in \mathbb G_2$，此外还有两个盲化辅助项 $\beta G_1,\delta G_1$。
+和 $\{B_i(\tau)G_2\}_{i=0}^{m-1}\in \mathbb G_2$，此外还有盲化辅助项 $\beta G_1,\delta G_1,\beta G_2,\delta G_2$ 。
 
 当然，$\text{PK}$ 还至少得包括 $p,\mathbb F,\mathbb G_1,\mathbb G_2,\mathbb G_T,G_1,G_2$。
 
@@ -408,7 +421,7 @@ Alice 可以快速利用 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$
 $$A(X)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(X)$$
 $$B(X)=\displaystyle\sum_{i=0}^{m-1}z_iB_i(X)$$
 $$C(X)=\displaystyle\sum_{i=0}^{m-1}z_iC_i(X)$$
-得到完整的 $A(X),B(X),C(X)$，并利用公式 $Q(X)=\dfrac{A(X)B(X)-C(X)}{Z_H(X)}$ 得到 $Q(X)$ 的系数：
+得到完整的 $A(X),B(X),C(X)$，并利用公式 $Q(X)=\dfrac{A(X)B(X)-C(X)}{Z_H(X)}$ 得到 $Q(X)$ 的系数（由于次数可计算得 $Q(X)$ 的次数不超过 $n-2$）：
 $$Q(X)=\displaystyle\sum_{i=0}^{n-2}q_iX^i$$
 
 然后，Alice 会从 $\mathbb F$ 中均匀随机选取 $r,s$ 两个盲化因子，计算出：
@@ -416,6 +429,8 @@ $$A'G_1=\alpha G_1+ r\delta G_1+\displaystyle\sum_{i=0}^{m-1}z_i(A_i(\tau)G_1)$$
 
 $$B'G_2=\beta G_2+ s\delta G_2+\displaystyle\sum_{i=0}^{m-1}z_i(B_i(\tau)G_2)$$
 $$C'G_1=s(A'G_1)+r\left(\beta G_1+\sum_{i=0}^{m-1}z_i(B_i(\tau)G_1)\right)+\sum_{i=k+1}^{m-1}z_i\left(\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\delta}G_1\right)+\sum_{i=0}^{n-2}q_i\left(\dfrac{\tau ^iZ_H(\tau)}{\delta}G_1\right)$$
+（这里的计算式实际上是 $A'B'=\alpha\beta+\gamma u_{\text{pub}}+\delta \left(u_{\text{priv}}+sA'+r(B'-s\delta)\right)$，因为 $B'-s\delta=\beta+B(\tau)$，可以节省运算，式子中写的就是 $\beta+B(\tau)$ 的形式，没有 $-rs\delta$）
+
 将 $\pi=(A'G_1,B'G_2,C'G_1)$ 作为证书发送给 Bob。
 ## 验证阶段
 
@@ -425,263 +440,23 @@ Bob 首先计算 $u_{\text{pub}}G_1$：
 $$u_{\text{pub}}G_1=\dfrac{\beta A_0(\tau)+\alpha B_0(\tau)+C_0(\tau)}{\gamma}G_1+\displaystyle\sum_{i=1}^{k}x_i\left(\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}G_1\right)$$
 随后验证等式是否成立：
 $$e(A'G_1,B'G_2)\stackrel{?}{=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cdot e(C'G_1,\delta G_2)$$
-其中 $e(\alpha G_1,\beta G_2)$ 也可以由可信第三方代为计算。
+其中 $e(\alpha G_1,\beta G_2)$ 也可以由可信第三方代为计算，或 Bob 在收到证明之前预先计算。
 
 如果等式成立，$\text{Verify}$ 返回 1，Bob 相信 Alice 持有合法的 $\boldsymbol w$，否则不信。
 
-你感觉这个算法很有道理啊，那么，要如何蒙……啊不，严谨地展示给 Alice 和 Bob，使得他们相信你呢？
-# 正确性与安全性证明
+你拍拍手，感觉这个算法还是很有道理的。
 
-你回忆了一下一开始 Alice 和 Bob 的要求是什么。
-
-好像是四个，完备性，即 Alice 的正确证明总能被 Bob 接受；知识可靠性，Alice 不知道 $\boldsymbol w$ 则伪证被 Bob 接受的概率可忽略；零知识性，即可信第三方可以造出没人能分清的 $(\text{PK}^*,\pi^*)$；还有高效性，让 Bob 的计算量比较小。
-
-其中高效性这个已经可以看出来了，不论电路有多复杂，Alice 从始至终只需要传递给 Bob 三个椭圆曲线上的群元素，而 Bob 的计算量相应的也确实更小：Bob 需要计算椭圆曲线上点的一个线性组合，还有至少三次双线性配对。
-
-那么，你注意到，如果将椭圆曲线的点加法计算、双线性配对计算和域上乘法运算看成常数值，整个计算复杂度仅与 $\boldsymbol x$ 的长度 $k$ 成正比，即 $O(k)$，与电路大小和 $\boldsymbol w$ 的长度都无关，应当还是较为高效的。
-
-虽然你听说双线性配对计算起来比较慢，但你想了一下，Bob 只需要计算三次，应该还可以。
-
-而且就算不高效了，我这个都已经写出来了，难道还回炉重造？你对自己说。
-
-但其它的呢？
-
-## 完美完备性
-
-其中完备性在你看来是最简单的了。
-
->**定理（完美完备性）**
->
->在第三方可信的前提下，Alice 如果持有能使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$ 的 $\boldsymbol w$。
->按照流程生成的证明 $\pi=\text{Prove}(\text{PK},\boldsymbol x,\boldsymbol w)$ 必定有 $\text{Verify}(\text{VK},\boldsymbol x,\pi)=1$。
-
-**证明：**
-
-由于前文的推导，Alice 如果持有能使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$ 的 $\boldsymbol w$，那么 Alice 计算出的 $A'G_1,B'G_2,C'G_1$ 必然满足：
-$$A'B'=\alpha\beta+\gamma u_{\text{pub}}+\delta C'$$
-用双线性配对来描述，就其实是：
-$$e(A'G_1,B'G_2)=e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cdot e(C'G_1,\delta G_2)$$
-等式必然成立，故 $\text{Verify}(\text{VK},\boldsymbol x,\pi)=1$。$\blacksquare$
-
-因此，Alice 如果持有 $\boldsymbol w$ 并且遵守规则，则 Alice 的证明 $\pi$ 必定被 Bob 接受。
-## 知识可靠性
-
-假设在第三方可信的前提下，Alice 在流程中仍然通过运行一个概率多项式算法以不可忽略的概率找到了一个伪证 $\pi^*$，使得 $\text{Verify}(\text{VK},\boldsymbol x,\pi^*)=1$。
-
-你表示，Bob 呀，遇到这种情况，我一者为你悲伤，二者为你道喜呀！恭喜 Bob 可以解决难题了！
-
-你看如果 Alice 找到了伪证 $\pi^*$ 你就可以解决离……啊？还不能？
-
-你表示有些尴尬，你赶紧查了一下论文。
-
-啊，啊哈哈哈，你眼珠一转，有了！
-
-与其寻找假设，不如自己创造一个假设！
-
->**假设（代数群模型）**
->
->对一个 $p$ 阶椭圆曲线群 $\mathbb G$，其中 $p$ 约为 $2^{2\kappa}$ 量级，且 $\mathbb F$ 是模 $p$ 有限域，可信第三方已公开了 $P_1,P_2,\cdots,P_N$ 这些群元素，如果敌手 $\mathcal A$ 输出了一个元素 $Y\in\mathbb G$，则 $\mathcal A$ 一定已知并能同时输出一组标量系数 $\begin{pmatrix}c_1&c_2&\cdots&c_N\end{pmatrix}\in \mathbb F^N$，满足：
->$$Y=\displaystyle\sum_{i=1}^{N}c_iP_i$$
-
-诶呀，Bob，这真不是我瞎编的。
-
-Bob，我知道在椭圆曲线上随便找一个点是容易的，但是，如果你在椭圆曲线上随便找一个点，那么它几乎不可能满足我们那个严苛的双线性配对等式的，所以如果 Alice 是一个有点智商的人，她也会选择用线性组合的方式来制作伪证。
-
-Bob，这真不是我乱编的，虽然你可能没有在 16 年之前的论文中看到过这个，但，但，其实，它，哦对，它是基于对椭圆曲线的正确认识而来的，所以实则很有道理！
-
-但你回头看了一下，你好像还不够证啊！
-
-啊……你终于找到了，诶呀，有权威背书的感觉真好。
-
->**困难问题（$t$-离散对数困难假设）**
->
->对两个 $p$ 阶椭圆曲线群 $\mathbb G_1,\mathbb G_2$，其中 $p$ 约为 $2^{2\kappa}$ 量级，且 $\mathbb F$ 是模 $p$ 有限域。
-> 
-> 其中 $\mathbb G_1$ 的生成元是 $G_1$ 和 $\mathbb G_2$ 的生成元是 $G_2$，$\tau$ 从 $\mathbb F\setminus\{0\}$ 中随机选取。
->
->给定 $G_1,\tau G_1,\tau^2 G_1,\cdots,\tau^t G_1$ 和 $G_2,\tau G_2,\tau^2 G_2,\cdots,\tau^t G_2$。
->
->敌手 $\mathcal A$ 运行概率多项式时间算法得到 $\tau$ 的概率是可忽略的。
-
-啊，Bob 你看那些顶级密码学家也是在这蒙……啊不，严谨地定义的，你看是不是使得我的假设更加令人信服了呢？
-
-你似乎蒙过了 Bob，你大为满意。
-
-总之你继续开始了推导。
-
-在此之前，你回忆了一下你的数学知识，确认了最后一个事实：
-
->**简单问题（有限域多项式求根）**
->
->设 $\mathbb F$ 是模质数 $p$ 下的有限域，$f(X)\in \mathbb F[X]$ 是一个次数为 $d$ 的非零多项式。
->
->则存在概率多项式时间算法，能在 $O(d\cdot \log d\cdot \log p)$ 时间复杂度内求出 $f(X)$ 在 $\mathbb F$ 中的所有根。
-
-你感觉你脑中的一根线通了。
-
->**定理（知识可靠性）**
->
->在第三方可信的前提下，Alice 如果用概率多项式算法以不可忽略的概率 $\varepsilon$，生成了证明 $\pi^*$ 使得 $\text{Verify}(\text{VK},\boldsymbol x,\pi^*)=1$。
->
->并且承认代数群模型假设和$t$-离散对数困难假设为真。
->
->则存在提取器，可以使用概率多项式时间的算法以 $\varepsilon-\text{negl}(\kappa)$ 的概率从 Alice 那里提取出满足 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$ 的 $\boldsymbol w$。
-
-Bob 啊，这个提取器你可以想象成你拥有一个超能力，比如你拥有：
-
-- 读心术，你可以读到 Alice 必须知道的知识。
-- 时间回溯，如果你对一次的结果不满意你可以倒带，不过这里用不上，因为它是非交互式的。
-
-众所周知，拥有一点超能力并不会让你变得聪明，所以如果你用提取器提取出了 $\boldsymbol w$，那这个知识产权本质上是归属于 Alice 的，也就证明了 Alice 拥有确实知识，即知识可靠性。
-
-**证明：**
-
-当 Alice 生成的证明 $\pi=(A^*G_1,B^*G_2,C^*G_1)$ 能够满足等式：
-$$e(A^*G_1,B^*G_2)=e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cdot e(C^*G_1,\delta G_2)$$
-则由 代数群模型假设 $A^*,B^*,C^*$ 必定对应一组系数展开，Bob，你动用超能力可以得到这组展开，不妨将其写为展开系数的形式：
-$$A^*(\tau) = a_\alpha \alpha + a_\beta \beta + a_\delta \delta + \sum_{i=0}^{m-1} a_{A, i} A_i(\tau) + \sum_{i=0}^{m-1} a_{B, i} B_i(\tau) + \sum_{i=0}^k a_{\text{pub}, i} \frac{\beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau)}{\gamma} + \sum_{i=k+1}^{m-1} a_{\text{priv}, i} \frac{\beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau)}{\delta} + \sum_{j=0}^{n-2} a_{H, j} \frac{\tau^j Z_H(\tau)}{\delta}$$
-$$B^*(\tau) = b_\beta \beta + b_\gamma \gamma + b_\delta \delta + \sum_{i=0}^{m-1} b_{B, i} B_i(\tau)$$
-
-$$C^*(\tau) = c_\alpha \alpha + c_\beta \beta + c_\delta \delta + \sum_{i=0}^{m-1} c_{A, i} A_i(\tau) + \sum_{i=0}^{m-1} c_{B, i} B_i(\tau) + \sum_{i=0}^k c_{\text{pub}, i} \frac{\beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau)}{\gamma} + \sum_{i=k+1}^{m-1} c_{\text{priv}, i} \frac{\beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau)}{\delta} + \sum_{j=0}^{n-2} c_{H, j} \frac{\tau^j Z_H(\tau)}{\delta}$$
-那么，由于 $\text{Verify}(\text{VK},\boldsymbol x,\pi^*)=1$，我们有：
-$$A^* (\tau) B^*(\tau) - \alpha\beta - \sum_{i=0}^k z_i \Big( \beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau) \Big) - \delta  C^* (\tau)=0$$
-虽然式子中有分式，但可以将其有理化，因此亦可等价于不超过 $3n+1$ 次多项式方程看待。
-
-现在的问题是，如果将 $\alpha,\beta,\gamma,\delta,\tau$ 看作形式变量，多元有理分式：
-$$F(\alpha,\beta,\gamma,\delta,\tau)=A^* (\tau) B^*(\tau) - \alpha\beta - \sum_{i=0}^k z_i \Big( \beta A_i(\tau) + \alpha B_i(\tau) + C_i(\tau) \Big) - \delta  C^* (\tau)$$
-
-是否恒等于 0？
-
-如果多元有理分式不恒等于 0 ，Alice 恰好蒙出了一组根，那么，考虑到 $F(\alpha,\beta,\gamma,\delta,\tau)\delta^2\gamma^2$ 是各项次数仍然不大于 $3n+1$ 的多元多项式，由多元 Schwartz-Zippel 引理，该情况发生的概率是可忽略的。
-
-如果多元有理分式不恒等于 0 ，Alice 的惊世智慧发力了，找到了 $\alpha,\beta,\gamma,\delta,\tau$ 的某些性质，但是 Bob 的机会也来了，他可以随机挑一个变量，然后用超能力买通（注意这个买通是为了构造解决困难问题的反证，后续证明仍假设没有买通）可信第三方，让可信第三方出示其它变量，然后，Bob 只需要解一个不超过 $3n+1$ 次的方程就可以解决 $t$-离散对数困难问题，而由于这个问题我们假设是困难的，因此这种情况发生的概率也是可忽略的。
-
-因此剩下的概率不可忽略，即多元有理分式 $F(\alpha,\beta,\gamma,\delta,\tau)$ 恒等于 0。
-
-那么，不妨构造 $\boldsymbol  z'$ 和 $Q'(X),A'(X),B'(X),C'(X)$ 使得：$$\boldsymbol z'=\begin{pmatrix}1&x_1&x_2&\cdots&x_k&c_{\text{priv},k+1}&c_{\text{priv},k+2}&\cdots&c_{\text{priv},m-1}\end{pmatrix}^T\in \mathbb F^m$$$$Q'(X)=\displaystyle\sum_{i=0}^{n-2}c_{H,i}X^i$$
-$$A'(X)=\displaystyle\sum_{i=0}^{m-1}{z_i}'A_i(X),B'(X)=\displaystyle\sum_{i=0}^{m-1}{z_i}'B_i(X),C'(X)=\displaystyle\sum_{i=0}^{m-1}{z_i}'C_i(X)$$
-考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\alpha\beta$ 项：
-$$\alpha\beta (a_\alpha b_\beta-1)$$
-故 $a_\alpha b_\beta=1$，由线性放缩，不妨取 $a_{\alpha}=b_{\beta}=1$。
-
-考虑 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\alpha \gamma$ 项：
-$$\alpha\gamma b_\gamma a_{\alpha}$$
-由于 $A^*(\tau)$ 含有 $a_\alpha$ 项必然非零，所以 $b_{\gamma}=0$ 必然成立，因此无需担心后续 $\gamma$ 和 $\gamma^{-1}$ 对消，含 $\gamma$ 的项在证明中始终为 0。
-
-考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\alpha$ 项（不含 $\beta$ 或 $\gamma^{-1}$ 项）：
-$$\alpha \left( b_\delta \delta + \sum_{i=0}^{m-1} b_{B, i} B_i(\tau) - \sum_{i=0}^k z_i B_i(\tau) - \sum_{i=k+1}^{m-1} c_{\text{priv}, i} B_i(\tau) \right)$$
-因此 $B'(X)=\displaystyle\sum_{i=0}^{m-1}{z_i}'B_i(X)=\displaystyle\sum_{i=0}^{m-1}b_{B,i}B_i(X)$。
-再考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 的 $\beta$ 项（不含 $\alpha$ 或 $\gamma^{-1}$ 项）：
-$$\beta \left( a_\beta \beta + a_\delta \delta + \sum_{i=0}^{m-1} a_{A, i} A_i(\tau) + \sum_{i=0}^{m-1} a_{B, i} B_i(\tau) - \sum_{i=0}^k z_i A_i(\tau) - \sum_{i=k+1}^{m-1} c_{\text{priv}, i} A_i(\tau) \right)$$
-因此 $A'(X)=\displaystyle\sum_{i=0}^{m-1}{z_i}'A_i(X)=\displaystyle\sum_{i=0}^{m-1}a_{A,i}A_i(X)$
-再考察 $F(\alpha,\beta,\gamma,\delta,\tau)$ 中不含 $\alpha,\beta,\gamma,\delta$ 的项：
-$$A'(\tau) B'(\tau) - \left( \sum_{i=0}^k z_i C_i(\tau) + \sum_{i=k+1}^{m-1} c_{\text{priv}, i} C_i(\tau) \right) - \left( \sum_{j=0}^{n-2} c_{H, j} \tau^j \right) Z_H(\tau) \equiv 0$$
-也就恰好有：
-$$A'(X)B'(X)-C'(X)-Q'(X)Z_H(X)\equiv 0$$
-因此，也就有 $(A\boldsymbol z')\circ (B\boldsymbol z')\equiv C\boldsymbol z'$，取 $\boldsymbol w=\begin{pmatrix}c_{\text{priv},k+1}&c_{\text{priv},k+2}&\cdots&c_{\text{priv},k+l}\end{pmatrix}^T\in \mathbb F^l$，即可使得 $\mathcal C(\boldsymbol x,\boldsymbol w)=1$。因此提取器以不可忽略的概率得到了解，即证实了知识可靠性。$\blacksquare$
-
-## 完美零知识性
-
-此时你看向 Alice，不知道为什么，你感觉这个证明其实是有点偏爱 Alice 的，因为你忽然发现，这个流程实际上具有完美零知识性，也就是说，模拟器造出来的模拟证明根本无法被区分。
-
-至少 Bob 算得方便了，你想着。
-
->**定理（完美零知识性）**
->
->在 Groth16 协议的流程中存在概率多项式时间的模拟器 $\text{Sim}$，它由两个部分 $\text{Sim}_1$ 和 $\text{Sim}_2$ 组成，其中：
->
->$\text{Sim}_1(1^{\kappa},\mathcal C)\to (\text{td},\text{PK}^*,\text{VK}^*)$ 接受安全参数 $\kappa$ 和电路 $\mathcal C$ 生成带有陷门 $\text{td}$ 的参考串 $(\text{PK}^*,\text{VK}^*)$。
->
->$\text{Sim}_2(\text{td},\boldsymbol x)\to \pi^*$ 在不输入见证 $\boldsymbol w$ 的前提下，生成模拟证明 $\pi^*$。
->
->其中设 $\mathbb F$ 是模 $p$ 有限域。
->
->设 $\mathcal R=\{(\boldsymbol x,\boldsymbol w)\in \mathbb F^k\times\mathbb F^l\mid\mathcal C(\boldsymbol x,\boldsymbol w)=1\}$ 为关系。
->
->则真实实验 $(\text{PK},\text{VK},\boldsymbol x,\text{Prove}(\text{PK},\boldsymbol x,\boldsymbol w))$ 和模拟实验 $(\text{PK}^*,\text{VK}^*,\boldsymbol x,\text{Sim}_2(\text{td},\boldsymbol x))$ 的输出分布统计完全同一，即任何算力不受限的区分器都无法区分。
-
-你告诉 Bob，注意了啊，模拟器能制造模拟证明，是因为它有更高级的权限，例如打破第三方的可信度，在现实中，只要第三方仍然可信，再满足一点点数学假设，模拟证明就造不出来，这是由知识可靠性来决定的。
-
-既然模拟器除了权限一点关于 $\boldsymbol w$ 知识都没有，那么这个意义上的无法区分就说明证明中确实没有透露一点关于 $\boldsymbol w$ 的信息。
-
-**证明：**
-
-这当然是因为模拟器从可信第三方入手简直和开了挂一样。
-
-其中 $\text{Sim}_1(1^{\kappa},\mathcal C)\to (\text{td},\text{PK}^*,\text{VK}^*)$ 用和 $\text{Setup}(1^{\kappa},\mathcal C)\to (\text{PK},\text{VK})$ 生成 $(\text{PK},\text{VK})$ 完全一样的方法生成 $(\text{PK}^*,\text{VK}^*)$，但是保留 $(\alpha,\beta,\gamma,\delta,\tau)$ 编码进 $\text{td}$ 并输出。
-
-此外，$\text{td}$ 还得包括 $p,\mathbb F,\mathbb G_1,\mathbb G_2,\mathbb G_T,G_1,G_2$，以及 $\{A_i(X)\}_{i=0}^k,\{B_i(X)\}_{i=0}^k,\{C_i(X)\}_{i=0}^k$，当然，这些是公开信息，写在这里只是为了说清楚信息量。
-
-而 $\text{Sim}_2(\text{td},\boldsymbol x)\to \pi^*$ 从 $\mathbb F$，即模 $p$ 有限域中随机采样两个标量 $a,b$。
-
-利用公开输入计算：
-$$u_{\text{pub}}=\dfrac{\beta A_0(\tau)+\alpha B_0(\tau)+C_0(\tau)}{\gamma}+\sum_{i=1}^kx_i\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}$$
-然后利用 $\text{td}$ 提供的标量 $\delta$ 计算标量 $c$ 满足：
-$$c=\delta^{-1}(ab-\alpha\beta-\gamma\cdot u_{\text{pub}})$$
-
-然后输出模拟证明 $\pi^*=(aG_1,bG_2,cG_1)$。
-
-这里，由于 $\text{Sim}_1$ 和 $\text{Setup}$ 的采样完全一致，故 $(\text{PK},\text{VK})$ 和 $(\text{PK}^*,\text{VK}^*)$ 的分布统计完全一致。
-
-考虑在真实证明 $\pi$ 中的 $A'G_1$ 和模拟证明 $\pi^*$ 中的 $aG_1$，其中真实证明 $\pi$ 中：
-$$A'G_1=\alpha G_1+ r\delta G_1+\displaystyle\sum_{i=0}^{m-1}z_i(A_i(\tau)G_1)$$
-由于加入了独立均匀选取的盲化因子 $r$ 且 $\delta\ne 0$，故 $A'G_1$ 独立于 $\text{PK}$ 在 $\mathbb G_1$ 中服从均匀分布。
-
-而 $aG_1$ 独立于 $\text{PK}^*$ 在 $\mathbb G_1$ 中也服从均匀分布。
-
-因此 $(\text{PK},\text{VK},A'G_1)$ 联合分布与 $(\text{PK}^*,\text{VK}^*,aG_1)$ 联合分布相同。
-
-考虑在真实证明 $\pi$ 中的 $B'G_2$ 和模拟证明 $\pi^*$ 中的 $bG_2$，其中真实证明 $\pi$ 中：
-$$B'G_2=\beta G_2+ s\delta G_2+\displaystyle\sum_{i=0}^{m-1}z_i(B_i(\tau)G_2)$$
-由于加入了独立均匀选取的盲化因子 $s$ 且 $\delta\ne 0$，由于 $s$ 是独立均匀选取的，故 $B'G_2$ 独立于 $A' G_1$ 在 $\mathbb G_2$ 中服从均匀分布。
-
-而 $bG_2$ 也独立于 $aG_1$在 $\mathbb G_2$ 中服从均匀分布。
-
-因此 $(\text{PK},\text{VK},A'G_1,B'G_2)$ 联合分布与 $(\text{PK}^*,\text{VK}^*,aG_1,bG_2)$ 联合分布相同。
-
-考虑在真实证明 $\pi$ 中的 $C'G_1$ 和模拟证明 $\pi^*$ 中的 $cG_1$，其中真实证明 $\pi$ 中 $C'G_1$ 是满足关于 $P$ 的方程：
-$$e(A'G_1,B'G_2){=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cdot e(P,\delta G_2)$$
-的唯一解。
-
-而模拟证明 $\pi^*$ 中 $cG_1$ 是满足关于 $Q$ 的方程：
-$$e(aG_1,bG_2){=}e(\alpha G_1,\beta G_2)\cdot e(u_{\text{pub}}G_1,\gamma G_2)\cdot e(Q,\delta G_2)$$
-的唯一解。
-
-由于联合分布和方程形式都相同，因此 $(\text{PK},\text{VK},\pi)$ 联合分布与 $(\text{PK}^*,\text{VK}^*,\pi^*)$ 联合分布相同。即输出分布统计完全同一。$\blacksquare$
-
-你松了一口气，也许 Alice 那边会比较好说服一点。
-
-## 最后的提醒
-
-你提醒 Alice 和 Bob，Alice 如果要向 Bob 提交一个证明，最好将全部能被 Bob 识别的信息作为公开输入 $\boldsymbol x$ 的一部分，因为如果 $\pi=(A'G_1,B'G_2,C'G_1)$ 是一个合法的证明，任取 $u\in \mathbb F\setminus\{0\}$，$\pi^*=(u^{-1}A'G_1,uB'G_2,C'G_1)$ 也是合法的，这种情况可能会被恶意攻击者利用，但如果攻击者不能篡改 $\boldsymbol x$，通常就无法达到目的。
-
-当然，这绝不是说前面的安全性是假的，只是现实总是复杂的，密码学要考虑很多情况的安全性。
-
-另外，关于安全参数 $\kappa$，你推荐实际中取 $\kappa=128$，因为大量在实践中能用的攻击方式的枚举量是 $\sqrt p$ 量级的，因此 $2^{128}$ 是一个对枚举来说重到不切实际的计算量。
-
-你另外提醒 Bob，可信第三方这里的设置实际上是对 Bob 比较不利的，因为即使第三方和 Bob 串通一气并给出 $\text{td}$，Bob 最多只能自己造伪证而不能提取 Alice 的 $\boldsymbol w$，但如果第三方和 Alice 串通并交出陷门 $\text{td}$，Alice 就可以在没有 $\boldsymbol w$ 的情况下制造伪证蒙骗 Bob，所以，这里的可信第三方设置最好采取什么物理的东西来保证。
-
-“比如让第三方随机从一个地方采购一个随机的二手老款旧笔记本电脑，物理拔掉网卡，去掉蓝牙或麦克风这种和外部有连接的设备，用放射性物质和盖革计数器作为随机源，在一个法拉第笼里面完成数据的生成，把数据塞到一个只能接受固定格式大小的数据的一次性刻录光盘里面，经过校验没有夹带就采纳。”
-
-“至于生成完成后的电脑？你们喜欢电钻粉碎、高温熔化还是铁锤砸烂？怎么炫酷怎么来吧。”
-
-你提醒 Alice 和 Bob，以上设置的主要目的不是为了防你们相信的第三方的，恰恰相反。
-
-“第三方的可信是上面所有行为有一点点意义的基础，上面的行为是尽量防止第三方在诚信的基础上，被恶意攻击者利用。”
-
-“但除此之外，你们要信任的外人还是太多了。当然，我个人不一定觉得他们能在很久以前就想到来给你们的仪式留下后门，所以还好。”
-
-你讲完，刻意静止了大概十秒，以保持一种庄重的肃穆，不过你自己心里也明白这套流程确实费事。
-
-你没有把它点破的原因是你无法预测客户的需求，也不应当承担降级后的业务风险，而如果 Alice 和 Bob 真的觉得上面那套流程费钱——那太好了，因为他们根本就不需要担心这套流程所防御的风险，然而，你不应该替精神如此美丽的用户擅自降低安全性，尤其是有关要求已经在一开始由你的询问确认。
-
-不论他们实践上是否有采取降级的举措，这都和你无关了，你想着。
 # 尾声
 
-在这之后，Alice 和 Bob 似乎对这个协议比较满意了，他们使用了很长一段时间，不过有的时候，也听到他们向你吐槽一些事情。
+目前，你的协议是完整设计出来了，但你目前还并不想将它们拉去见 Alice 和 Bob，原因很简单，风险。
 
-比如说他们有的时候会怀疑可信第三方是不是真的可信，为此你表示，或许可以把 $\text{Setup}$ 做成多方参与的形式，只要一方诚实地销毁了自己的参数，整个流程就是安全的，然而，你确实感觉你一开始的 $\text{Setup}$ 流程设计太过麻烦，如果拆成多方计算，需要相对复杂的流程，你感觉你的脑细胞不够用了。
+“以他们这种美丽的精神状态，要是找一个第三方审计找到协议的缺陷，我这个付费咨询的牌子就砸了……”你捂脸。
 
-此外，他们有时也会抱怨如果更换一个电路 $\mathcal C$，就得重新请第三方搞一次计算操作，这你也无奈，这是流程初始设计埋下的暗坑。
+不论如何，你得设计一套方案，明确安全的边界，你确保了在什么前提下的安全，你的设计本意保证了什么的安全，这些都要写一套说明。
 
-然而，有的时候你还是会回想起 Alice 和 Bob，想到这一串有趣的推导流程。
+你不期待 Alice 或者 Bob 逐条审阅，但当事情出了岔子，它们就是你的保险。
+
+你打开一页草稿纸。
+
+“开始写吧。”
+
