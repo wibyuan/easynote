@@ -423,13 +423,13 @@ $$\{A_i(X)\}_{i=0}^{m-1},\{B_i(X)\}_{i=0}^{m-1},\{C_i(X)\}_{i=0}^{m-1},Z_H(X)$$
 $$\alpha G_1,\{A_i(\tau)G_1\}_{i=0}^{m-1},\{B_i(\tau)G_1\}_{i=0}^{m-1},\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\delta}G_1\right\}_{i=k+1}^{m-1},\left\{\dfrac{\tau ^iZ_H(\tau)}{\delta}G_1\right\}_{i=0}^{n-2}\in \mathbb G_1$$
 和 $\{B_i(\tau)G_2\}_{i=0}^{m-1}\in \mathbb G_2$，此外还有盲化辅助项 $\beta G_1,\delta G_1,\beta G_2,\delta G_2$ 。
 
-当然，$\text{PK}$ 还至少得包括 $p,\mathbb F,\mathbb G_1,\mathbb G_2,\mathbb G_T,G_1,G_2$。
+当然，$\text{PK}$ 还至少得包括 $p,\mathbb F,\mathbb G_1,\mathbb G_2,\mathbb G_T$。
 
 而被编码为 $\text{VK}$ 的点包括：
 $$\alpha G_1,\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}G_1\right\}_{i=0}^{k}\in \mathbb G_1$$
 和 $\beta G_2,\gamma G_2,\delta G_2\in \mathbb G_2$。
 
-当然，$\text{VK}$ 还至少得包括 $p,\mathbb F,\mathbb G_1,\mathbb G_2,\mathbb G_T,G_1,G_2,e$ 。
+当然，$\text{VK}$ 还至少得包括 $p,\mathbb F,\mathbb G_1,\mathbb G_2,\mathbb G_T,e$ 。
 
 公布完毕后，可信第三方随后物理销毁被生成且未公布的参数，尤其是 $\alpha,\beta,\gamma,\delta,\tau$。
 
