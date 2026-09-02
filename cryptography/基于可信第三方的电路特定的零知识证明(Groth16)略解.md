@@ -326,9 +326,15 @@ $$A(X)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(X)$$
 
 你盯着 $A(X)B(X)-C(X)-Q(X)Z_H(X)\equiv 0$ 发呆。
 
-你想象着你代入了一个随机值 $\tau$ 使得 $A(\tau)B(\tau)-C(\tau)-Q(\tau)Z_H(\tau)= 0$，但不能直接这样！
+你想象着你代入了一个随机值 $\tau$ 使得 $A(\tau)B(\tau)-C(\tau)-Q(\tau)Z_H(\tau)= 0$。
 
-因为 Alice 可能会使得 $A(X),B(X),C(X)$ 不是真正由公开信息线性组合而来的。
+然后给出 $\{A_i(\tau)G_1\}_{i=0}^{m-1},\{B_i(\tau)G_2\}_{i=0}^{m-1},\{C_i(\tau)G_1\}_{i=0}^{m-1},\{\tau^iZ_H(\tau)G_1\}_{i=0}^{n-2}$，其中 $G_1,G_2$ 分别是椭圆曲线群 $\mathbb G_1,\mathbb G_2$ 的生成元，Alice 就只能用这些已知的基多项式来校验线性组合了。
+
+你眉头一皱，你意识到不能直接这样。
+
+因为 Alice 可能会使得 $A(X),B(X),C(X)$ 不是真正由公开信息线性组合而来的，形式化而言，Alice 可能会用三个不同的向量 $\boldsymbol z_1,\boldsymbol z_2,\boldsymbol z_3$，满足 $(A\boldsymbol z_1)\circ (B\boldsymbol z_2)=C\boldsymbol z_3$。
+
+实际上，Alice 甚至可能能凑出$(C\boldsymbol z_1)\circ (B\boldsymbol z_2)=C\boldsymbol z_3$，当前你给出的方案并没有禁止 Alice 这样凑，但这和你约束的转化大相径庭。
 
 这怎么破解呢？
 
@@ -338,14 +344,24 @@ $$A(X)=\displaystyle\sum_{i=0}^{m-1}z_iA_i(X)$$
 
 那么 $A(\tau)B(\tau)-C(\tau)-Q(\tau)Z_H(\tau)= 0$ 可以简单地变形一下：
 $$(A(\tau)+\alpha)(B(\tau)+\beta)=\alpha\beta+(\beta A(\tau)+\alpha B(\tau)+C(\tau))+Q(\tau)Z_H(\tau)$$
-这样子，$A(X),B(X),C(X)$ 就被搅在一起了！如果 Alice 用 $A_i,B_i,C_i$ 的不同或无效的线性组合，看起来，有了 $\alpha,\beta$，余项就会搅在一起干扰校验！
+这样子，$A(X),B(X),C(X)$ 就被搅在一起了！
+
+这样，你一开始只给出，$\{A_i(\tau)G_1\}_{i=0}^{m-1},\{B_i(\tau)G_2\}_{i=0}^{m-1},\{(\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau))G_1\}_{i=0}^{m-1},\{\tau^iZ_H(\tau)G_1\}_{i=0}^{n-2}$。
+
+独立的 $C_i(\tau)G_1$ 不给了！
+
+如果 Alice 用 $A_i,B_i,C_i$ 的不同或无效的线性组合，看起来，由于 Alice 不知道 $\alpha,\beta$，如果她伪造，余项就会搅在一起让校验不通过！
 
 你的眉头舒缓了，但你还是觉得差一点。
 ## 分离公私
 
 你还是找到了你差在哪里。
 
-Alice 虽然被迫使用同一组线性组合，但她仍然有可能伪造 $\boldsymbol x$，或者将 $\boldsymbol z$ 的其它部分（例如 Alice 本来就掌控的秘密信息 $\boldsymbol w,\boldsymbol v$）和 $\boldsymbol x,Q(X)$ 搅合在一起，必须堵死这个漏洞！
+Alice 虽然被迫使用同一组线性组合，但她仍然有可能伪造 $\boldsymbol x$，或者将 $\boldsymbol z$ 的其它部分（例如 Alice 本来就掌控的秘密信息 $\boldsymbol w,\boldsymbol v$）和 $\boldsymbol x,Q(X)$ 搅合在一起。
+
+例如，Alice 可能伪造一个 $\boldsymbol z$，满足 $(A\boldsymbol z)\circ (B\boldsymbol z)=C\boldsymbol z$，但是 $\boldsymbol z$ 的前 $k+1$ 个分量不是 1 和 $\boldsymbol x$。
+
+必须堵死这个漏洞！
 
 你眉头一皱，展开了式子：
 
@@ -356,7 +372,12 @@ $$u_{\text{pub}}=\sum_{i=0}^kz_i\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau
 $$u_{\text{priv}}=\dfrac{Q(\tau)Z_H(\tau)}{\delta}+\sum_{i=k+1}^{m-1}z_i\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\delta}$$
 然后就有：
 $$(A(\tau)+\alpha)(B(\tau)+\beta)=\alpha\beta+\gamma u_{\text{pub}}+\delta u_{\text{priv}}$$
-其中 $u_{\text{pub}}$ 控制的信息直接由 Bob 算好，不给 Alice 机会。
+其中 $u_{\text{pub}}$ 控制的信息直接由 Bob 算好，不给 Alice 机会，这样，你一开始给出：
+$$\{A_i(\tau)G_1\}_{i=0}^{m-1},\{B_i(\tau)G_2\}_{i=0}^{m-1},\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\gamma}G_1\right\}_{i=0}^{k}$$
+$$\left\{\dfrac{\beta A_i(\tau)+\alpha B_i(\tau)+C_i(\tau)}{\delta}G_1\right\}_{i=k+1}^{m-1},\left\{\dfrac{\tau^iZ_H(\tau)}{\delta}G_1\right\}_{i=0}^{n-2}$$
+带有 $\gamma$ 的项和 $\alpha G_1,\beta G_2$ 的双线性配对完全可以留给 Bob 独立计算，带有 $\delta$ 的项才是 Alice 算的，此外，Alice 仍然需要凑出完整的 $A,B$。
+
+由于 Alice 不知道 $\gamma,\delta$，如果她伪造，这些 Alice 不知道的参数仍然会让校验不通过。
 
 现在 Alice 理论上难以伪造了，但你还是莫名有些不安。
 
@@ -373,7 +394,7 @@ Alice 和 Bob 可能在同一个电路上进行多次证明。
 
 欸，不妨让 Alice 每次生成的时候都选取 $r,s\in \mathbb F$。
 
-不妨设 $A'=A(\tau)+\alpha+r\delta$ 且 $B'=B(\tau)+\beta+s\delta$。
+不妨设 $A'=A(\tau)+\alpha+r\delta$ 且 $B'=B(\tau)+\beta+s\delta$，注意到，这样就将 $A',B'$ 伪装成随机的群元素了，事实上，它们在统计上确实是均匀随机的。
 
 就注意到：
 $$A'B'=(A(\tau)+\alpha)(B(\tau)+\beta)+s\delta(A(\tau)+\alpha)+r\delta(B(\tau)+\beta)+rs\delta^2$$
